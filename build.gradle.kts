@@ -3,7 +3,12 @@ plugins {
 }
 
 group = "fr.geming400.gddotkt.trigg"
-version = "1.0-SNAPSHOT"
+version = project.property("version")!!
+
+java {
+    sourceCompatibility = JavaVersion.VERSION_22
+    targetCompatibility = JavaVersion.VERSION_22
+}
 
 repositories {
     mavenCentral()
@@ -18,7 +23,7 @@ dependencies {
 }
 
 kotlin {
-    jvmToolchain(25)
+    jvmToolchain(22)
 }
 
 tasks.test {
