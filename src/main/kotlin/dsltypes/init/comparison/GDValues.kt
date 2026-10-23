@@ -181,7 +181,7 @@ abstract class NumberGDValue<N : Number>(val value: N, type: ItemTriggerTermType
 }
 
 abstract class WithIdGDValue(val itemID: UInt? = null, type: ItemTriggerTermType) : GDValue(type = type) {
-    private var acquiredItemID: UInt? = null;
+    private var acquiredItemID: UInt? = null
 
     /**
      * Gets the itemID of this [GDValue][WithIdGDValue].
