@@ -1,14 +1,12 @@
+package generator
+
 import editor.objects.GenericGdObject
+import provider.TriggProvider
 
 /**
  * Represents a class related to `Trigg`.
  * It has a [context] and can create an object of type [T]
  */
-interface TriggObject<T : GenericGdObject> {
+interface ContextualTriggObject<T : GenericGdObject> : TriggObject<T> {
     val context: TriggProvider
-
-    /**
-     * Creates the object linked to this [TriggObject]
-     */
-    fun createObject(): T
 }
