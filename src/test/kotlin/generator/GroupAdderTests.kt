@@ -49,4 +49,18 @@ private class GroupAdderTests {
                     && it.groups.size() == 2
         })
     }
+
+    @Test
+    @DisplayName("Without adding to ctx")
+    fun withoutAddingToContext() {
+        val objAdder = GroupAdder(TriggProvider(), 5u, addObjectsToContext = false)
+        objAdder.add { SimpleObject(5u, Pos.ZERO) }
+        objAdder.add { TimewarpTrigger(Pos.ZERO, 1.5f) }
+
+        objAdder.spawn {
+            objAdder.add { SimpleObject(5u, Pos.ZERO) }
+        }
+
+        Assertions.assertTrue(objAdder.collectedObjects.isEmpty(), "objAdder.collectedObjects is not empty")
+    }
 }

@@ -13,7 +13,7 @@ import kotlin.collections.first
 /**
  * Collects objects which are all assigned a default group
  * @property group the group to assign
- * @property addObjectsToContext TODO
+ * @property addObjectsToContext if the objects should get automatically added to the [context]
  */
 class GroupAdder(private val context: ObjectManager<SimpleObject>, val group: UInt = 0u, val addObjectsToContext: Boolean = true): ObjectManager<SimpleObject> {
     /**
