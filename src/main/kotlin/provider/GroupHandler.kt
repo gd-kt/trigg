@@ -12,7 +12,6 @@ interface GroupHandler {
     val nextFreeGroup: UInt
     val nextFreeLabel: UInt
 
-    // TODO: Add tests to see if the first acquired group is 1
     /**
      * Acquires a group ID, incrementing [nextFreeGroup]
      * @return the acquired group ID

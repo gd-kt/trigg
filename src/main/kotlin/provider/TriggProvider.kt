@@ -53,13 +53,13 @@ class TriggProvider internal constructor(): ObjectManager<SimpleObject>, RawStri
     val init: TriggInit
         get() = this._init ?: TriggInit.DEFAULT
 
-    override var nextFreeGroup: UInt = 1u
-        get() = field + this.init.groupSpace.baseOffset.value
-        private set
+    private var _nextFreeGroup: UInt = 1u
+    override val nextFreeGroup: UInt
+        get() = this._nextFreeGroup + this.init.groupSpace.baseOffset.value
 
-    override var nextFreeLabel: UInt = 1u
-        get() = field + this.init.labelSpace.registerRange.first
-        private set
+    private var _nextFreeLabel: UInt = 0u
+    override val nextFreeLabel: UInt
+        get() = this._nextFreeLabel + this.init.labelSpace.scriptRange.first
 
     override fun asRawString(): String =
         RawStringFactory.joinRawStrings(this.addedObjects)
@@ -138,7 +138,7 @@ class TriggProvider internal constructor(): ObjectManager<SimpleObject>, RawStri
             throw IllegalStateException("Too many acquired groups. There are ${this.init.groupSpace.allocatedGroups} allocatable groups yet all of them were used")
 
         val acquiredGroup = this.nextFreeGroup
-        this.nextFreeGroup++
+        this._nextFreeGroup++
 
         return acquiredGroup
     }
@@ -147,10 +147,10 @@ class TriggProvider internal constructor(): ObjectManager<SimpleObject>, RawStri
         if (this.nextFreeLabel !in this.init.labelSpace.scriptRange)
             throw IllegalStateException("Too many acquired labels. There are ${this.init.labelSpace.script} allocatable labels yet all of them were used")
 
-        val acquiredGroup = this.nextFreeGroup
-        this.nextFreeGroup++
+        val acquiredLabel = this.nextFreeLabel
+        this._nextFreeLabel++
 
-        return acquiredGroup
+        return acquiredLabel
     }
 }
 
