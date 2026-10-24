@@ -15,18 +15,27 @@ interface TriggInit {
 
     /**
      * The main group added to all objects created by `trigg`
+     * @see clearPreviousObjects
      */
     val commonGroup: UInt // TODO: Change type to Group
     val basePos: Position
     val labelSpace: LabelSpace
     val groupSpace: GroupSpace
+    /**
+     * If the previous objects should be cleared.
+     * This uses WSLiveEditor
+     * @see commonGroup
+     * @see editor.wsliveeditor.WSLiveEditor.addObjects
+     */
+    val clearPreviousObjects: Boolean
 }
 
 data class MutableTriggInit(
     override var commonGroup: UInt = TriggerProperties.MAX_GROUPS,
     override var basePos: Position = Pos.ZERO,
     override var labelSpace: LabelSpace = LabelSpace.DEFAULT,
-    override var groupSpace: GroupSpace = GroupSpace.DEFAULT
+    override var groupSpace: GroupSpace = GroupSpace.DEFAULT,
+    override var clearPreviousObjects: Boolean = false
 ) : TriggInit {
     fun toImmutable(): ImmutableTriggInit =
         ImmutableTriggInit(this.commonGroup, this.basePos, this.labelSpace, this.groupSpace)
@@ -36,5 +45,6 @@ data class ImmutableTriggInit(
     override val commonGroup: UInt = TriggerProperties.MAX_GROUPS,
     override val basePos: Position = Pos.ZERO,
     override val labelSpace: LabelSpace = LabelSpace.DEFAULT,
-    override val groupSpace: GroupSpace = GroupSpace.DEFAULT
+    override val groupSpace: GroupSpace = GroupSpace.DEFAULT,
+    override val clearPreviousObjects: Boolean = false
 ) : TriggInit

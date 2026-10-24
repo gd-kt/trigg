@@ -68,14 +68,12 @@ class TriggProvider internal constructor(): ObjectManager<SimpleObject>, RawStri
      * Creates the initializer for this [TriggProvider]
      */
     fun init(initGetter: MutableTriggInit.() -> Unit) {
-        if (this._init == null) {
-            val triggInit = MutableTriggInit()
-            initGetter(triggInit)
+        require(this._init == null) { "Cannot set twice the init block of a TriggProvider" }
 
-            this._init = triggInit.toImmutable()
-        } else {
-            error("Cannot set twice the init block of a TriggProvider")
-        }
+        val triggInit = MutableTriggInit()
+        initGetter(triggInit)
+
+        this._init = triggInit.toImmutable()
     }
 
     override fun <T: SimpleObject> add(obj: T): T {
@@ -163,6 +161,11 @@ fun trigg(triggEntryPoint: TriggerProviderFunc): String {
     TriggProvider.INSTANCE = trigg
     triggEntryPoint(trigg)
     TriggProvider.INSTANCE = null
+
+    if (trigg.init.clearPreviousObjects)
+        WSLiveEditor().use {
+            it.removeObjects(trigg.init.commonGroup)
+        }
 
     return trigg.asRawString()
 }
