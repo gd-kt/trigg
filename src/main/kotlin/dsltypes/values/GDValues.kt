@@ -112,9 +112,13 @@ open class GDValue(
 
 
                 firstTermType.value = this@GDValue.type
+                firstTermRoundingType.value = this@GDValue.roundingType
+                firstTermAbsNeg.value = this@GDValue.absNegType
                 if (this@GDValue is WithIdGDValue)
                     firstItemID.value = this@GDValue.getItemID(ctx)
 
+                secondTermRoundingType.value = other.roundingType
+                secondTermAbsNeg.value = other.absNegType
                 secondTermType.value = other.type
                 if (other is WithIdGDValue)
                     secondItemID.value = other.getItemID(ctx)
