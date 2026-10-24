@@ -1,15 +1,12 @@
 package dsltypes.init.comparison
 
-import generator.TriggObject
-import editor.objects.GenericGdObject
 import editor.objects.SimpleObject
 import editor.objects.data.Pos
-import provider.TriggProvider
 import editor.objects.triggers.counters.ItemCompareTrigger
+import generator.TriggObject
 import provider.ObjectManager
-import provider.ScopedObjectAdder
 
-private typealias ConditionalBranch = ScopedObjectAdder<SimpleObject>.() -> Unit
+typealias ConditionalBranch = ObjectManager<SimpleObject>.() -> Unit
 
 class Comparison internal constructor(
     internal val obj: ItemCompareTrigger = ItemCompareTrigger(Pos.ZERO),
@@ -24,12 +21,12 @@ class Comparison internal constructor(
     var elseClause: ConditionalBranch? = elseClause
         internal set
 
-    override fun createObject(context: TriggProvider): ItemCompareTrigger? {
+    override fun createObject(context: ObjectManager<SimpleObject>): ItemCompareTrigger? {
         checkNotNull(this.thenClause) {
             "A then branch is required to build a condition"
         }
 
-        if (this.thenClause == null && this.elseClause == null)
+        if (this.inlinedBranch != null)
             return null
 
         return this.obj.apply {
@@ -38,30 +35,29 @@ class Comparison internal constructor(
     }
 
     // TODO
-    override fun createAllObjects(context: TriggProvider): Collection<GenericGdObject> {
+    override fun createAllObjects(context: ObjectManager<SimpleObject>): Collection<SimpleObject> {
         checkNotNull(this.thenClause) {
             "A then branch is required to build a condition"
         }
 
         if (this.inlinedBranch != null) {
            when (this.inlinedBranch) {
-               InlinedBranch.INLINE_THEN -> {
-                   println("Inlining then")
-                   context.spawn { this@Comparison.thenClause!!() }
-               }
-               InlinedBranch.INLINE_ELSE -> {
-                   println("Inlining else")
+               InlinedBranch.INLINE_THEN ->
+                   this@Comparison.thenClause!!(context)
 
-                   if (this.elseClause != null) {
-
-                   }
-               }
+               InlinedBranch.INLINE_ELSE ->
+                   if (this.elseClause != null)
+                       this@Comparison.elseClause!!(context)
            }
         }
 
-        return listOf(
-            this.createObject(context)!!
-        )
+        val res = mutableListOf<SimpleObject>()
+
+        val compTrigger = this.createObject(context)
+        if (compTrigger != null)
+            res.add(compTrigger)
+
+        return res
     }
 
     enum class InlinedBranch {
@@ -88,11 +84,11 @@ class Comparison internal constructor(
 }
 
 infix fun Comparison.then(thenClause: ConditionalBranch): Comparison {
-    require(this.thenClause != null) {
+    require(this.thenClause == null) {
         "Cannot set a 'then conditional branch' twice !"
     }
 
-    require(this.elseClause != null) {
+    require(this.elseClause == null) {
         "Cannot set an 'then conditional branch' after an 'else' one !"
     }
 
@@ -101,21 +97,10 @@ infix fun Comparison.then(thenClause: ConditionalBranch): Comparison {
 }
 
 infix fun Comparison.fail(elseClause: ConditionalBranch): Comparison {
-    require(this.elseClause != null) {
+    require(this.elseClause == null) {
         "Cannot set a 'else conditional branch' twice !"
-    }
-
-    require(this.thenClause != null) {
-        "Cannot set an 'else conditional branch' after an 'then' one !"
     }
 
     this.elseClause = elseClause
     return this
-}
-
-fun ObjectManager<SimpleObject>.comp(creator: ComparisonCreator, thenClause: ConditionalBranch): Comparison {
-    val comp = creator(this)
-    thenClause(this)
-
-    return comp
 }

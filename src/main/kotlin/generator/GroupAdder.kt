@@ -4,10 +4,17 @@ import editor.objects.SimpleObject
 import editor.objects.data.Pos
 import editor.objects.triggers.misc.SpawnTrigger
 import editor.objects.triggers.setSpawned
+import editor.rawstring.property.getOrThrow
 import provider.ObjectManager
-import provider.ScopedObjectAdder
+import provider.TriggProvider
+import kotlin.collections.first
 
-class GroupAdder(private val context: ObjectManager<SimpleObject>, val group: UInt, val addObjectsToContext: Boolean = true): ScopedObjectAdder<SimpleObject> {
+/**
+ * Collects objects which are all assigned a default group
+ * @property group the group to assign
+ * @property addObjectsToContext TODO
+ */
+class GroupAdder(private val context: ObjectManager<SimpleObject>, val group: UInt = 0u, val addObjectsToContext: Boolean = true): ObjectManager<SimpleObject> {
     /**
      * The objects that were collected.
      * To add objects, you must do it through the [add] functions
@@ -56,7 +63,7 @@ class GroupAdder(private val context: ObjectManager<SimpleObject>, val group: UI
         }
     }
 
-    override fun spawn(spawner: ScopedObjectAdder<SimpleObject>.() -> Unit, delay: Float) {
+    override fun spawn(spawner: ObjectManager<SimpleObject>.() -> Unit, delay: Float) {
         val acquiredGroup = this.context.acquireGroup()
 
         this.addSpawnTrigger(acquiredGroup, delay)
@@ -80,6 +87,18 @@ class GroupAdder(private val context: ObjectManager<SimpleObject>, val group: UI
             return@add trigg
         }
     }
+
+    override val nextFreeGroup: UInt
+        get() = this.context.nextFreeGroup
+
+    override val nextFreeLabel: UInt
+        get() = this.context.nextFreeLabel
+
+    override fun acquireGroup(): UInt =
+        this.context.acquireGroup()
+
+    override fun acquireLabel(): UInt =
+        this.context.acquireLabel()
 }
 
 /**
