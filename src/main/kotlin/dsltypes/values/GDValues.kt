@@ -234,6 +234,13 @@ abstract class WithIdGDValue(val itemID: UInt? = null, type: ItemTriggerTermType
     private var acquiredItemID: UInt? = null
 
     /**
+     * The last known value manually set **known** by trigg.
+     * This doesn't mean that this reflects the true value in **ANY WAY**
+     */
+    var lastKnownValue: Int? = null
+        private set
+
+    /**
      * Gets the itemID of this [GDValue][WithIdGDValue].
      *
      * If its [itemID] is equal to `null` then
@@ -249,7 +256,41 @@ abstract class WithIdGDValue(val itemID: UInt? = null, type: ItemTriggerTermType
 
         return this.acquiredItemID!!
     }
+
+    /**
+     * Sets the value of this [GDValue][WithIdGDValue] when this executes.
+     * The modifiers applied to this [GDValue][WithIdGDValue] will
+     * be applied to the given [value]
+     * @param value The value is converted into a [Float]. But no matter
+     * what geometry dash will turn the result into an [Int]
+     */
+    fun setValue(ctx: ObjectManager<in SimpleObject>, value: Number): ItemEditTrigger {
+        this.lastKnownValue = value.toInt()
+        return ctx.add {
+            ItemEditTrigger(ctx.getNextPos()).apply {
+                resultItemID.value = this@WithIdGDValue.getItemID(ctx)
+                secondTermFactor.value = value.toFloat()
+
+                secondTermAbsNeg.value = this@WithIdGDValue.absNegType
+                secondTermRoundingType.value = this@WithIdGDValue.roundingType
+            }
+        }
+    }
+
+    /**
+     * Sets the value of this [GDValue][WithIdGDValue] when this executes.
+     */
+    fun setValue(ctx: ObjectManager<in SimpleObject>, value: UInt) =
+        this.setValue(ctx, value.toInt())
 }
+
+context(ctx: ObjectManager<in SimpleObject>)
+fun WithIdGDValue.setValue(value: Number) =
+    this.setValue(ctx, value)
+
+context(ctx: ObjectManager<in  SimpleObject>)
+fun WithIdGDValue.setValue(value: UInt) =
+    this.setValue(ctx, value)
 
 class IntGDValue(value: Int): NumberGDValue<Int>(value) {
     override fun numberToN(numInput: Number): Int = numInput.toInt()
@@ -294,6 +335,20 @@ class AttemptGDValue : GDValue(type = ItemTriggerTermType.ATTEMPTS)
  *               If `null`, a new itemID will get [acquired][GroupHandler.acquireLabel]
  */
 fun item(itemID: UInt? = null) = ItemGDValue(itemID)
+
+/**
+ * Creates an [ItemGDValue] with an optional itemID and a value
+ * @param itemID the optional itemID to set for the [ItemGDValue].
+ *               If `null`, a new itemID will get [acquired][GroupHandler.acquireLabel]
+ * @param value the value to set
+ * @see ItemGDValue.setValue
+ */
+fun ObjectManager<SimpleObject>.item(itemID: UInt? = null, value: Number): ItemGDValue {
+    val gdValue = ItemGDValue(itemID)
+    gdValue.setValue(this, value)
+
+    return gdValue
+}
 
 /**
  * Creates an [TimerGDValue] with a timerID
