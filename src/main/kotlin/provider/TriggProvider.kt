@@ -86,7 +86,8 @@ class TriggProvider internal constructor(): ObjectManager<SimpleObject>, RawStri
 
     override fun <T: SimpleObject> add(obj: T): T {
         this.addedObjects.add(obj)
-        obj.groups.add(this.init.baseGroup)
+        obj.groups.add(this.init.commonGroup)
+
         return obj
     }
 

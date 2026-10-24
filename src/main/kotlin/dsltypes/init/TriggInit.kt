@@ -16,24 +16,24 @@ interface TriggInit {
     /**
      * The main group added to all objects created by `trigg`
      */
-    val baseGroup: UInt
+    val commonGroup: UInt // TODO: Change type to Group
     val basePos: Position
     val labelSpace: LabelSpace
     val groupSpace: GroupSpace
 }
 
 data class MutableTriggInit(
-    override var baseGroup: UInt = TriggerProperties.MAX_GROUPS,
+    override var commonGroup: UInt = TriggerProperties.MAX_GROUPS,
     override var basePos: Position = Pos.ZERO,
     override var labelSpace: LabelSpace = LabelSpace.DEFAULT,
     override var groupSpace: GroupSpace = GroupSpace.DEFAULT
 ) : TriggInit {
     fun toImmutable(): ImmutableTriggInit =
-        ImmutableTriggInit(this.baseGroup, this.basePos, this.labelSpace, this.groupSpace)
+        ImmutableTriggInit(this.commonGroup, this.basePos, this.labelSpace, this.groupSpace)
 }
 
 data class ImmutableTriggInit(
-    override val baseGroup: UInt = TriggerProperties.MAX_GROUPS,
+    override val commonGroup: UInt = TriggerProperties.MAX_GROUPS,
     override val basePos: Position = Pos.ZERO,
     override val labelSpace: LabelSpace = LabelSpace.DEFAULT,
     override val groupSpace: GroupSpace = GroupSpace.DEFAULT

@@ -20,7 +20,7 @@ private class GroupAdderTests {
 
         Assertions.assertTrue(objAdder.collectedObjects.all {
             it.groups.getOrThrow().contains(5u)
-                    && it.groups.getOrThrow().contains(TriggInit.DEFAULT.baseGroup)
+                    && it.groups.getOrThrow().contains(TriggInit.DEFAULT.commonGroup)
                     && it.groups.size() == 2
         })
     }
@@ -38,14 +38,14 @@ private class GroupAdderTests {
 
         Assertions.assertFalse(objAdder.collectedObjects.all {
             it.groups.getOrThrow().contains(5u)
-                    && it.groups.getOrThrow().contains(TriggInit.DEFAULT.baseGroup)
+                    && it.groups.getOrThrow().contains(TriggInit.DEFAULT.commonGroup)
                     && it.groups.size() == 1
         })
 
         Assertions.assertTrue(objAdder.spawnBranches.flatten().all {
             // 6u is the acquired group for the spawn trigger
             it.groups.getOrThrow().contains(6u)
-                    && it.groups.getOrThrow().contains(TriggInit.DEFAULT.baseGroup)
+                    && it.groups.getOrThrow().contains(TriggInit.DEFAULT.commonGroup)
                     && it.groups.size() == 2
         })
     }
