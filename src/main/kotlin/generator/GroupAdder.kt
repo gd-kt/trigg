@@ -53,7 +53,7 @@ class GroupAdder(private val context: ObjectManager<SimpleObject>, val group: UI
     /**
      * Adds at "compile time" objects to the final output having this [GroupAdder]'s [group]
      */
-    override fun add(vararg objs: SimpleObject) {
+    override fun add(objs: Iterable<SimpleObject>) {
         objs.forEach {
             it.groups.add(this.group)
             this.collectedObjects.add(it)
@@ -68,7 +68,7 @@ class GroupAdder(private val context: ObjectManager<SimpleObject>, val group: UI
 
         this.addSpawnTrigger(acquiredGroup, delay)
 
-        val collector = GroupAdder(this.context, acquiredGroup, addObjectsToContext = false)
+        val collector = GroupAdder(this.context, acquiredGroup, addObjectsToContext = this.addObjectsToContext)
         collector.spawner()
 
         // We don't use ScopedObjectAdded#add because
@@ -101,10 +101,74 @@ class GroupAdder(private val context: ObjectManager<SimpleObject>, val group: UI
         this.context.acquireLabel()
 }
 
+// TODO: Tests for all "group" functions
+
 /**
- * Creates a [GroupAdder] to create objects at "compile time" with
- * a given [group]
- * @see GroupAdder.add
+ * Creates a [GroupAdder] to create objects at "compile time" with a given group
+ * @see ObjectManager.groups
+ * @see onlyGroup
  */
 fun ObjectManager<SimpleObject>.group(group: UInt, groupAdder: GroupAdder.() -> Unit) =
     GroupAdder(this, group).apply(groupAdder)
+
+/**
+ * Creates a [GroupAdder] to create objects at "compile time" with multiple groups
+ * @see ObjectManager.group
+ * @see onlyGroup
+ */
+@OptIn(ExperimentalUnsignedTypes::class)
+fun ObjectManager<SimpleObject>.groups(vararg groups: UInt, groupAdder: GroupAdder.() -> Unit): GroupAdder {
+    val myGroupAdder = GroupAdder(this, groups.first()).apply(groupAdder)
+
+    myGroupAdder.collectedObjects.forEach { obj ->
+        if (obj.groups.getOrThrow().contains(groups.first()))
+            obj.groups.getOrCreateCollection().addAll(groups)
+    }
+
+    return myGroupAdder
+}
+
+private const val ONLY_GROUP_TEMP_GROUP: UInt = UInt.MAX_VALUE
+
+/**
+ * Creates a [GroupAdder] to create objects at "compile time" with a given [group].
+ *
+ * Unlike [ObjectManager.group], if for example we're inside a `spawn` statement
+ * but want to add objects only with a given group, then this can prove to
+ * be useful
+ * @see onlyGroups
+ * @see ObjectManager.group
+ */
+fun onlyGroup(group: UInt, groupAdder: GroupAdder.() -> Unit): GroupAdder {
+    val myGroupAdder = GroupAdder(TriggProvider.getInstance(), ONLY_GROUP_TEMP_GROUP).apply(groupAdder)
+    myGroupAdder.collectedObjects.forEach {
+        if (it.groups.getOrThrow().contains(ONLY_GROUP_TEMP_GROUP)) {
+            it.groups.remove(ONLY_GROUP_TEMP_GROUP)
+            it.groups.add(group)
+        }
+    }
+
+    return myGroupAdder
+}
+
+/**
+ * Creates a [GroupAdder] to create objects at "compile time" with a given [group].
+ *
+ * Unlike [ObjectManager.group], if for example we're inside a `spawn` statement
+ * but want to add objects only with a given group, then this can prove to
+ * be useful
+ * @see onlyGroup
+ * @see ObjectManager.group
+ */
+@OptIn(ExperimentalUnsignedTypes::class)
+fun onlyGroups(vararg groups: UInt, groupAdder: GroupAdder.() -> Unit): GroupAdder {
+    val myGroupAdder = GroupAdder(TriggProvider.getInstance(), 0u).apply(groupAdder)
+    myGroupAdder.collectedObjects.forEach {
+        if (it.groups.getOrThrow().contains(ONLY_GROUP_TEMP_GROUP)) {
+            it.groups.remove(ONLY_GROUP_TEMP_GROUP)
+            it.groups.getOrCreateCollection().addAll(groups)
+        }
+    }
+
+    return myGroupAdder
+}

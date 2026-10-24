@@ -1,11 +1,7 @@
 package dsltypes.init.comparison
 
 import editor.objects.SimpleObject
-import editor.objects.triggers.counters.ItemCompareComparisonType
-import editor.objects.triggers.counters.ItemCompareTrigger
-import editor.objects.triggers.counters.ItemTriggerAbsNeg
-import editor.objects.triggers.counters.ItemTriggerRoundingType
-import editor.objects.triggers.counters.ItemTriggerTermType
+import editor.objects.triggers.counters.*
 import provider.GroupHandler
 import provider.ObjectManager
 import kotlin.math.abs
@@ -30,6 +26,13 @@ typealias ComparisonCreator = ObjectManager<SimpleObject>.() -> Comparison
  *
  * creates a constant [GDValue] with a value of `5` which will be rounded.
  * Here it doesn't do anything since `round(5) == 5` but this is an example.
+ *
+ * A [GDValue] can also become persistent, however only if it
+ * can contain an itemID or a timerID.
+ * In a trigg context you can do:
+ * ```kotlin
+ * myValue = persistent {  }
+ * ```
  *
  * ## Constructors
  *
@@ -77,56 +80,50 @@ typealias ComparisonCreator = ObjectManager<SimpleObject>.() -> Comparison
  * @property roundingType the type of the rounding applied to the value at runtime
  * @property absNegType the "abs/neg" type applied to the value at runtime
  * @property type the type of the value, it's what is stored
- * @property allowInlining if when creating a compare trigger
- * the [comparison][Comparison] can be inlined.
- *
- * For example if we're doing the comparison `const(8) greaterThanEqual const(3)`, `8` is
- * clearly greater than `3`, so the "then" branch can be inlined
- * and the "else" branch discarded.
  */
 open class GDValue(
     var roundingType: ItemTriggerRoundingType = ItemTriggerRoundingType.NONE,
     var absNegType: ItemTriggerAbsNeg = ItemTriggerAbsNeg.NONE,
-    val type: ItemTriggerTermType,
-    var allowInlining: Boolean = true
+    val type: ItemTriggerTermType
 ) {
-    private fun createCompareTrigger(other: GDValue, compType: ItemCompareComparisonType): ComparisonCreator = { ctx ->
-        // When this is the case we can precompute
-        // the outcome since it's a simple if check
-        if (this@GDValue.allowInlining && this is NumberGDValue<*> && other is NumberGDValue<*>) {
-            val a = this.value.toDouble()
-            val b = other.value.toDouble()
+    private fun createCompareTrigger(other: GDValue, compType: ItemCompareComparisonType): ComparisonCreator =
+        ComparisonCreator@{ ctx ->
+            // When this is the case we can precompute
+            // the outcome since it's a simple if check
+            if (this is NumberGDValue<*> && other is NumberGDValue<*>) {
+                val a = this.expectedValue.toDouble()
+                val b = other.expectedValue.toDouble()
 
-            val res = when (compType) {
-                ItemCompareComparisonType.EQUAL -> Comparison.InlinedBranch.fromEvaluation(a == b)
-                ItemCompareComparisonType.NOT_EQUAL -> Comparison.InlinedBranch.fromEvaluation(a != b)
-                ItemCompareComparisonType.GREATER_THAN -> Comparison.InlinedBranch.fromEvaluation(a > b)
-                ItemCompareComparisonType.GREATER_THAN_EQUAL -> Comparison.InlinedBranch.fromEvaluation(a >= b)
-                ItemCompareComparisonType.LESS_THAN -> Comparison.InlinedBranch.fromEvaluation(a < b)
-                ItemCompareComparisonType.LESS_THAN_EQUAL -> Comparison.InlinedBranch.fromEvaluation(a <= b)
+                val res = when (compType) {
+                    ItemCompareComparisonType.EQUAL -> Comparison.InlinedBranch.fromEvaluation(a == b)
+                    ItemCompareComparisonType.NOT_EQUAL -> Comparison.InlinedBranch.fromEvaluation(a != b)
+                    ItemCompareComparisonType.GREATER_THAN -> Comparison.InlinedBranch.fromEvaluation(a > b)
+                    ItemCompareComparisonType.GREATER_THAN_EQUAL -> Comparison.InlinedBranch.fromEvaluation(a >= b)
+                    ItemCompareComparisonType.LESS_THAN -> Comparison.InlinedBranch.fromEvaluation(a < b)
+                    ItemCompareComparisonType.LESS_THAN_EQUAL -> Comparison.InlinedBranch.fromEvaluation(a <= b)
+                }
+
+                return@ComparisonCreator Comparison(inlinedBranch = res)
             }
 
-            Comparison(inlinedBranch = res)
+            val itemCompTrigger = ItemCompareTrigger(ctx.getNextPos()).apply {
+                comparisonType.value = compType
+
+
+                firstTermType.value = this@GDValue.type
+                if (this@GDValue is WithIdGDValue)
+                    firstItemID.value = this@GDValue.getItemID(ctx)
+
+                secondTermType.value = other.type
+                if (other is WithIdGDValue)
+                    secondItemID.value = other.getItemID(ctx)
+
+                if (other is NumberGDValue<*>)
+                    secondTermFactor.value = other.value.toFloat()
+            }
+
+            Comparison(itemCompTrigger)
         }
-
-        val itemCompTrigger = ItemCompareTrigger(ctx.getNextPos()).apply {
-            comparisonType.value = compType
-
-
-            firstTermType.value = this@GDValue.type
-            if (this@GDValue is WithIdGDValue)
-                firstItemID.value = this@GDValue.getItemID(ctx)
-
-            secondTermType.value = other.type
-            if (other is WithIdGDValue)
-                secondItemID.value = other.getItemID(ctx)
-
-            if (other is NumberGDValue<*>)
-                secondTermFactor.value = other.value.toFloat()
-        }
-
-        Comparison(itemCompTrigger)
-    }
 
     infix fun equalsTo(other: GDValue): ComparisonCreator =
         this.createCompareTrigger(other, ItemCompareComparisonType.EQUAL)
@@ -155,12 +152,12 @@ abstract class NumberGDValue<N : Number>(val value: N, type: ItemTriggerTermType
      * @param newValue the value to set in the copy
      * @return the copy with the newly set value
      */
-    abstract fun with(newValue: N): NumberGDValue<N>
+    abstract fun with(newValue: N): NumberGDValue<N> // TODO: Test
 
     /**
      * The expected value that will be evaluated by Geometry Dash
      */
-    val expectedValue: N
+    val expectedValue: N // TODO: Test
         get() {
             var doubleValue = this.value.toDouble()
             when (this.roundingType) {
@@ -206,7 +203,6 @@ class IntGDValue(value: Int): NumberGDValue<Int>(value) {
 
     override fun with(newValue: Int): IntGDValue =
         IntGDValue(newValue).let {
-            it.allowInlining = this.allowInlining
             it.absNegType = this.absNegType
             it.roundingType = this.roundingType
 
@@ -223,7 +219,6 @@ class FloatGDValue(value: Float): NumberGDValue<Float>(value) {
 
     override fun with(newValue: Float): FloatGDValue =
         FloatGDValue(newValue).let {
-            it.allowInlining = this.allowInlining
             it.absNegType = this.absNegType
             it.roundingType = this.roundingType
 
