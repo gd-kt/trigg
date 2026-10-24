@@ -2,6 +2,7 @@ package generator
 
 import editor.objects.SimpleObject
 import editor.objects.data.Pos
+import editor.objects.triggers.TriggerObject
 import editor.objects.triggers.misc.SpawnTrigger
 import editor.objects.triggers.setSpawned
 import editor.rawstring.property.getOrThrow
@@ -29,38 +30,17 @@ class GroupAdder(private val context: ObjectManager<SimpleObject>, val group: UI
     val spawnBranches: List<List<SimpleObject>>
         field: MutableList<MutableList<SimpleObject>> = mutableListOf()
 
-    /**
-     * Adds at "compile time" an object to the final output with this [GroupAdder]'s [group]
-     * @return the created object. It is modifiable
-     */
-    override fun <T: SimpleObject> add(objectGetter: () -> T): T =
-        this.add(objectGetter())
-
-    /**
-     * Adds at "compile time" an object to the final output with this [GroupAdder]'s [group]
-     * @return the created object. It is modifiable
-     */
-    override fun <T: SimpleObject> add(obj: T): T {
+    override fun <T : SimpleObject> add(obj: T): T {
         obj.groups.add(this.group)
         this.collectedObjects.add(obj)
+
+        if (obj is TriggerObject)
+            obj.setSpawned(multiTriggered = true)
 
         if (this.addObjectsToContext)
             this.context.add(obj)
 
         return obj
-    }
-
-    /**
-     * Adds at "compile time" objects to the final output having this [GroupAdder]'s [group]
-     */
-    override fun add(objs: Iterable<SimpleObject>) {
-        objs.forEach {
-            it.groups.add(this.group)
-            this.collectedObjects.add(it)
-
-            if (this.addObjectsToContext)
-                this.context.add(it)
-        }
     }
 
     override fun spawn(spawner: ObjectManager<SimpleObject>.() -> Unit, delay: Float) {
@@ -81,10 +61,7 @@ class GroupAdder(private val context: ObjectManager<SimpleObject>, val group: UI
 
     private fun addSpawnTrigger(targetID: UInt, delay: Float) {
         this.add {
-            val trigg = SpawnTrigger(this.context.getNextPos(), targetID, delay)
-            trigg.setSpawned()
-
-            return@add trigg
+            SpawnTrigger(this.context.getNextPos(), targetID, delay)
         }
     }
 
