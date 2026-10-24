@@ -13,11 +13,13 @@ interface TriggObject<Obj : SimpleObject> {
      */
     fun createObject(context: ObjectManager<SimpleObject>): Obj? = null
 
-    fun createAllObjects(context: ObjectManager<SimpleObject>): Collection<SimpleObject> {
+    /**
+     * Creates all the objects of this [TriggObject].
+     * However, they are all added to the given [context]
+     */
+    fun createAllObjects(context: ObjectManager<SimpleObject>) {
         val obj = this.createObject(context)
-        return if (obj == null)
-            emptyList()
-        else
-            listOf(obj)
+        if (obj != null)
+            context.add(obj)
     }
 }
