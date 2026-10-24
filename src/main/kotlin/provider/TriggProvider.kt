@@ -13,6 +13,7 @@ import editor.rawstring.RawStringable
 import editor.wsliveeditor.WSLiveEditor
 import generator.GroupAdder
 import generator.group
+import kotlin.collections.mutableListOf
 
 /**
  * The base class for everything trigg related.
@@ -45,7 +46,8 @@ class TriggProvider internal constructor(): ObjectManager<SimpleObject>, RawStri
         }
     }
 
-    private val addedObjects = mutableListOf<GenericGdObject>()
+    val addedObjects: List<GenericGdObject>
+        field: MutableList<GenericGdObject> = mutableListOf()
 
     private var currentPos: Pos = Pos.gridCentered(-1f, 0f)
 
