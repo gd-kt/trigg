@@ -78,7 +78,7 @@ class TriggProvider internal constructor(): ObjectManager<SimpleObject>, RawStri
 
     override fun <T: SimpleObject> add(obj: T): T {
         this.addedObjects.add(obj)
-        obj.groups.add(this.init.commonGroup)
+        obj.groups.add(this.init.commonGroup.value)
 
         return obj
     }
@@ -165,7 +165,7 @@ fun trigg(triggEntryPoint: TriggerProviderFunc): String {
 
     if (trigg.init.clearPreviousObjects)
         WSLiveEditor().use {
-            it.removeObjects(trigg.init.commonGroup)
+            it.removeObjects(trigg.init.commonGroup.value)
         }
 
     return trigg.asRawString()
