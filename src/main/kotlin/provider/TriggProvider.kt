@@ -10,7 +10,9 @@ import editor.objects.triggers.misc.SpawnTrigger
 import editor.objects.triggers.setSpawned
 import editor.rawstring.RawStringFactory
 import editor.rawstring.RawStringable
+import editor.wsliveeditor.WSLiveEditor
 import generator.GroupAdder
+import generator.group
 
 /**
  * The base class for everything trigg related.
@@ -76,27 +78,11 @@ class TriggProvider internal constructor(): ObjectManager<SimpleObject>, RawStri
         }
     }
 
-    override fun <T: SimpleObject> add(objectGetter: () -> T): T {
-        val obj = objectGetter()
-        obj.groups.add(this.init.baseGroup)
-        this.addedObjects.add(obj)
-
-        return obj
-    }
-
     override fun <T: SimpleObject> add(obj: T): T {
         this.addedObjects.add(obj)
         obj.groups.add(this.init.commonGroup)
 
         return obj
-    }
-
-    override fun add(objs: Iterable<SimpleObject>) {
-        objs.forEach {
-            it.groups.add(this.init.baseGroup)
-        }
-
-        this.addedObjects.addAll(objs)
     }
 
     override fun spawn(spawner: ObjectManager<SimpleObject>.() -> Unit, delay: Float) {
@@ -110,6 +96,36 @@ class TriggProvider internal constructor(): ObjectManager<SimpleObject>, RawStri
 
         val collector = GroupAdder(this, acquiredGroup)
         collector.spawner()
+    }
+
+    /**
+     * Spawns the group representing the [entrypoint][dsltypes.init.space.GroupSpace.entrypoint]
+     */
+    fun executeEntrypoint(delay: Float = 0f): SpawnTrigger =
+        this.spawn(this.init.groupSpace.entrypoint, delay).apply {
+            spawnTriggered.resetValue()
+            multiTriggered.resetValue()
+
+            // We offset the entrypoint trigger a bit to the right
+            // to prevent issues where some features
+            // don't work when the trigger
+            // is outside the "play area"
+            pos = pos.copy(x = 0.001f)
+        }
+
+    /**
+     * Defines the content of the entrypoint
+     * @param execute if the entrypoint should
+     *                get executed as soon as the level started.
+     *                To define your own behavior you can call [executeEntrypoint]
+     * @param entrypointSpawner the lambda that will get spawned as the entrypoint
+     * @see executeEntrypoint
+     */
+    fun entrypoint(execute: Boolean = true, entrypointSpawner: ObjectManager<SimpleObject>.() -> Unit) {
+        group(this.init.groupSpace.entrypoint.toUInt(), entrypointSpawner)
+
+        if (execute)
+            this.executeEntrypoint()
     }
 
     override fun getNextPos(): Pos {
