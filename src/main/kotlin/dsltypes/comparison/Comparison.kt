@@ -16,7 +16,6 @@ class Comparison internal constructor(
     thenClause: ConditionalBranch? = null,
     elseClause: ConditionalBranch? = null
 ): TriggObject<ItemCompareTrigger> {
-    // TODO: Use these
     var thenClause: ConditionalBranch? = thenClause
         internal set
 
