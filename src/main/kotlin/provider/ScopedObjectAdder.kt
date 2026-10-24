@@ -2,7 +2,9 @@ package provider
 
 import TriggDsl
 import editor.objects.GenericGdObject
+import editor.objects.SimpleObject
 import editor.objects.data.Pos
+import generator.GroupAdder
 
 @TriggDsl
 interface ScopedObjectAdder<Obj: GenericGdObject> {
@@ -21,20 +23,27 @@ interface ScopedObjectAdder<Obj: GenericGdObject> {
     /**
      * Adds at "compile time" objects to the final output
      */
-    fun add(vararg objs: Obj)
+    fun add(vararg objs: Obj) {
+        this.add(objs.toList())
+    }
+
+    /**
+     * Adds at "compile time" objects to the final output
+     */
+    fun add(objs: Iterable<Obj>)
 
     /**
      * Spawns a lambda after a given delay (which is `>=0`)
      * @param spawner what to spawn
      * @param delay the time after which the [lambda][spawner] will get spawned
      */
-    fun spawn(spawner: ScopedObjectAdder<Obj>.() -> Unit, delay: Float)
+    fun spawn(spawner: ObjectManager<Obj>.() -> Unit, delay: Float)
 
     /**
      * Spawns a lambda instantly (with a delay of `0`)
      * @param spawner what to spawn
      */
-    fun spawn(spawner: ScopedObjectAdder<Obj>.() -> Unit) = this.spawn(spawner, 0f)
+    fun spawn(spawner: ObjectManager<Obj>.() -> Unit) = this.spawn(spawner, 0f)
 
     /**
      * Gets the pos to place a trigger.
@@ -43,4 +52,8 @@ interface ScopedObjectAdder<Obj: GenericGdObject> {
      * @return the pos where to place the next object
      */
     fun getNextPos(): Pos
+}
+
+fun ScopedObjectAdder<SimpleObject>.add(groupAdder: GroupAdder) {
+    this.add(groupAdder.collectedObjects)
 }
