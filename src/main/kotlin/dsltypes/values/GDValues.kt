@@ -130,21 +130,82 @@ open class GDValue(
             Comparison(itemCompTrigger)
         }
 
+    // TODO: applyModifiers tests
+
+    /**
+     * Applies the modifiers of this [value][GDValue] to the given [value].
+     * To learn more about modifiers, read [GDValue]'s KDoc
+     */
+    fun applyModifiers(value: Int): Int {
+        return when (this.absNegType) {
+            ItemTriggerAbsNeg.ABS -> abs(value)
+            ItemTriggerAbsNeg.NEGATIVE -> -value
+            else -> value
+        }
+    }
+
+    /**
+     * Applies the modifiers of this [value][GDValue] to the given [value].
+     * To learn more about modifiers, read [GDValue]'s KDoc
+     */
+    fun applyModifiers(value: Double): Double {
+        var res = value
+        when (this.roundingType) {
+            ItemTriggerRoundingType.ROUND -> res = round(res)
+            ItemTriggerRoundingType.FLOOR -> res = floor(res)
+            ItemTriggerRoundingType.CEIL -> res = round(res)
+            else -> {}
+        }
+
+        when (this.absNegType) {
+            ItemTriggerAbsNeg.ABS -> res = abs(res)
+            ItemTriggerAbsNeg.NEGATIVE -> res = -res
+            else -> {}
+        }
+
+        return res
+    }
+
+    /**
+     * Applies the modifiers of this [value][GDValue] to the given [value].
+     * To learn more about modifiers, read [GDValue]'s KDoc
+     */
+    fun applyModifiers(value: Float): Float =
+        this.applyModifiers(value.toDouble()).toFloat()
+
+    /**
+     * Operator `==`
+     */
     infix fun equalsTo(other: GDValue): ComparisonCreator =
         this.createCompareTrigger(other, ItemCompareComparisonType.EQUAL)
 
+    /**
+     * Operator `!=`
+     */
     infix fun notEqualTo(other: GDValue): ComparisonCreator =
         this.createCompareTrigger(other, ItemCompareComparisonType.NOT_EQUAL)
 
+    /**
+     * Operator `>`
+     */
     infix fun greaterThan(other: GDValue): ComparisonCreator =
         this.createCompareTrigger(other, ItemCompareComparisonType.GREATER_THAN)
 
+    /**
+     * Operator `>=`
+     */
     infix fun greaterThanEqual(other: GDValue): ComparisonCreator =
         this.createCompareTrigger(other, ItemCompareComparisonType.GREATER_THAN_EQUAL)
 
+    /**
+     * Operator `<`
+     */
     infix fun lessThan(other: GDValue): ComparisonCreator =
         this.createCompareTrigger(other, ItemCompareComparisonType.LESS_THAN)
 
+    /**
+     * Operator `<=`
+     */
     infix fun lessThanEqual(other: GDValue): ComparisonCreator =
         this.createCompareTrigger(other, ItemCompareComparisonType.LESS_THAN_EQUAL)
 }
@@ -164,21 +225,8 @@ abstract class NumberGDValue<N : Number>(val value: N, type: ItemTriggerTermType
      */
     val expectedValue: N // TODO: Test
         get() {
-            var doubleValue = this.value.toDouble()
-            when (this.roundingType) {
-                ItemTriggerRoundingType.ROUND -> doubleValue = round(doubleValue)
-                ItemTriggerRoundingType.FLOOR -> doubleValue = floor(doubleValue)
-                ItemTriggerRoundingType.CEIL -> doubleValue = round(doubleValue)
-                else -> {}
-            }
-
-            when (this.absNegType) {
-                ItemTriggerAbsNeg.ABS -> doubleValue = abs(doubleValue)
-                ItemTriggerAbsNeg.NEGATIVE -> doubleValue = -doubleValue
-                else -> {}
-            }
-
-            return this.numberToN(doubleValue)
+            val doubleValue = this.value.toDouble()
+            return this.numberToN(this.applyModifiers(doubleValue))
         }
 }
 
@@ -207,29 +255,32 @@ class IntGDValue(value: Int): NumberGDValue<Int>(value) {
     override fun numberToN(numInput: Number): Int = numInput.toInt()
 
     override fun with(newValue: Int): IntGDValue =
-        IntGDValue(newValue).let {
-            it.absNegType = this.absNegType
-            it.roundingType = this.roundingType
-
-            return it
+        IntGDValue(newValue).apply {
+            absNegType = this.absNegType
+            roundingType = this.roundingType
         }
 }
 
 class FloatGDValue(value: Float): NumberGDValue<Float>(value) {
     init {
-        require(this.value.isFinite()) { "Value for a FloatGDValue must be finite. It is ${this.value} instead" }
+        require(this.value.isFinite()) { "Value for a FloatGDValue must be finite. However it is ${this.value}" }
     }
 
     override fun numberToN(numInput: Number): Float = numInput.toFloat()
 
     override fun with(newValue: Float): FloatGDValue =
-        FloatGDValue(newValue).let {
-            it.absNegType = this.absNegType
-            it.roundingType = this.roundingType
-
-            return it
+        FloatGDValue(newValue).apply {
+            absNegType = this.absNegType
+            roundingType = this.roundingType
         }
 }
+
+/**
+ * Applies the modifiers of this [value][GDValue] to the given [value].
+ * To learn more about modifiers, read [GDValue]'s KDoc
+ */
+fun GDValue.applyModifiers(value: UInt): UInt =
+    this.applyModifiers(value.toInt()).toUInt()
 
 class ItemGDValue(itemID: UInt? = null) : WithIdGDValue(itemID, type = ItemTriggerTermType.ITEM)
 class TimerGDValue(timerID: UInt) : WithIdGDValue(timerID, type = ItemTriggerTermType.TIMER)
