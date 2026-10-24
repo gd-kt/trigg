@@ -16,14 +16,8 @@ abstract class WrappedObjectManager<Obj : GenericGdObject>(private val wrappedCo
     override fun acquireLabel(): UInt =
         this.wrappedContext.acquireLabel()
 
-    override fun <T : Obj> add(objectGetter: () -> T): T =
-        this.wrappedContext.add(objectGetter)
-
     override fun <T : Obj> add(obj: T): T =
         this.wrappedContext.add(obj)
-
-    override fun add(objs: Iterable<Obj>) =
-        this.wrappedContext.add(objs)
 
     override fun spawn(spawner: ObjectManager<Obj>.() -> Unit, delay: Float) =
         this.wrappedContext.spawn(spawner, delay)
