@@ -1,8 +1,5 @@
 package provider
 
-import Label
-import Owner
-import generator.GroupAdder
 import dsltypes.init.MutableTriggInit
 import dsltypes.init.TriggInit
 import editor.objects.GenericGdObject
@@ -13,8 +10,39 @@ import editor.objects.triggers.misc.SpawnTrigger
 import editor.objects.triggers.setSpawned
 import editor.rawstring.RawStringFactory
 import editor.rawstring.RawStringable
+import generator.GroupAdder
 
+/**
+ * The base class for everything trigg related.
+ * Only 1 instance can be created at the same time. For example this is invalid and will throw an exception:
+ * ```kotlin
+ * trigg {
+ *     trigg {
+ *         // ...
+ *     }
+ *
+ *     // ...
+ * }
+ * ```
+ */
 class TriggProvider internal constructor(): ObjectManager<SimpleObject>, RawStringable {
+    companion object {
+        internal var INSTANCE: TriggProvider? = null
+
+        /**
+         * Gets the current [TriggProvider] instance
+         * @throws IllegalStateException if there is no trigg
+         */
+        fun getInstance(): TriggProvider =
+            checkNotNull(INSTANCE) { "No trigg instance was created ! Maybe you're calling it after it got destroyed ?" }
+    }
+
+    init {
+        require(INSTANCE == null) {
+            "Cannot create more than 1 trigg instance at the same time !"
+        }
+    }
+
     private val addedObjects = mutableListOf<GenericGdObject>()
 
     private var currentPos: Pos = Pos.gridCentered(-1f, 0f)
@@ -62,7 +90,7 @@ class TriggProvider internal constructor(): ObjectManager<SimpleObject>, RawStri
         return obj
     }
 
-    override fun add(vararg objs: SimpleObject) {
+    override fun add(objs: Iterable<SimpleObject>) {
         objs.forEach {
             it.groups.add(this.init.baseGroup)
         }
@@ -70,25 +98,18 @@ class TriggProvider internal constructor(): ObjectManager<SimpleObject>, RawStri
         this.addedObjects.addAll(objs)
     }
 
-    override fun spawn(spawner: ScopedObjectAdder<SimpleObject>.() -> Unit, delay: Float) {
+    override fun spawn(spawner: ObjectManager<SimpleObject>.() -> Unit, delay: Float) {
         val acquiredGroup = this.acquireGroup()
         this.add {
-            val trigg = SpawnTrigger(this.getNextPos(), acquiredGroup, delay)
-            trigg.setSpawned()
+            val spawnTrigger = SpawnTrigger(this.getNextPos(), acquiredGroup, delay)
+            spawnTrigger.setSpawned()
 
-            return@add trigg
+            return@add spawnTrigger
         }
 
-        val collector = GroupAdder(this, acquiredGroup, addObjectsToContext = false)
+        val collector = GroupAdder(this, acquiredGroup)
         collector.spawner()
-
-        this.add(*collector.collectedObjects.toTypedArray())
     }
-
-    fun createLabel(addVisualConter: Boolean = false): Label = createLabel(addVisualConter, Owner.USER)
-
-    internal fun createLabel(addVisualConter: Boolean = false, owner: Owner): Label =
-        Label(this, addVisualConter, owner)
 
     override fun getNextPos(): Pos {
         val posSnapshot = this.currentPos.copy()
@@ -121,7 +142,10 @@ typealias TriggerProviderFunc = TriggProvider.() -> Unit
 
 fun trigg(triggEntryPoint: TriggerProviderFunc): String {
     val trigg = TriggProvider()
+
+    TriggProvider.INSTANCE = trigg
     triggEntryPoint(trigg)
+    TriggProvider.INSTANCE = null
 
     return trigg.asRawString()
 }
