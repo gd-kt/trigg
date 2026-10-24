@@ -145,7 +145,7 @@ open class GDValue(
         this.createCompareTrigger(other, ItemCompareComparisonType.LESS_THAN_EQUAL)
 }
 
-abstract class NumberGDValue<N : Number>(val value: N, type: ItemTriggerTermType = ItemTriggerTermType.ITEM) : GDValue(type = type) {
+abstract class NumberGDValue<N : Number>(val value: N, type: ItemTriggerTermType = ItemTriggerTermType.UNSET) : GDValue(type = type) {
     protected abstract fun numberToN(numInput: Number): N
 
     /**
