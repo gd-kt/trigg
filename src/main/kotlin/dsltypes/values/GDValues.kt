@@ -38,22 +38,22 @@ typealias ComparisonCreator = ObjectManager<SimpleObject>.() -> Comparison
  * ## Constructors
  *
  * Since there are multiple types of [GDValues][GDValue], there are multiple constructors:
- * - [`const(Number)`][const] and [`const(Uint)`][const]: Creates a constant from any number.
+ * - [const(Number)][const] and [`const(Uint)`][const]: Creates a constant from any number.
  * The value **gets cast into an int**.
- * - [`constFloat(Number)`][constFloat]: Creates a float constant from any number.
+ * - [constFloat(Number)][constFloat]: Creates a float constant from any number.
  * The value **gets cast into a float**.
- * - [`item(UInt?)`][item]: Creates an [Item Value][ItemGDValue] with an optional itemID. Learn more in [item]'s KDoc.
- * - [`timer(UInt)`][timer]: Creates a [Timer Value][TimerGDValue] with a timerID.
- * - [`points()`][points]: Creates a [Points Value][PointsGDValue].
+ * - [item(UInt?)][item]: Creates an [Item Value][ItemGDValue] with an optional itemID. Learn more in [item]'s KDoc.
+ * - [timer(UInt)][timer]: Creates a [Timer Value][TimerGDValue] with a timerID.
+ * - [points()][points]: Creates a [Points Value][PointsGDValue].
  * It stores the current points of a run. This is only used in **Platformer Mode**.
- * - [`gameTime()`][gameTime]: Creates a [Game Timer Value][GameTimeGDValue].
+ * - [gameTime()][gameTime]: Creates a [Game Timer Value][GameTimeGDValue].
  * It stores the current time the level was played for in a 2 decimal precision timer (ex: `5.16`).
  * This only works in **Platformer Mode**.
  * Its behavior is special. If the player hasn't activated any checkpoint
  * then on death the timer will reset.
  * But when a checkpoint got activated, unless a full restart is triggered, the
  * timer won't stop.
- * - [`attempts()`][attempts]: Creates an [Attempt Value][AttemptGDValue].
+ * - [attempts()][attempts]: Creates an [Attempt Value][AttemptGDValue].
  * It stores the current attempt count for this session.
  *
  * ## Modifiers
@@ -70,13 +70,13 @@ typealias ComparisonCreator = ObjectManager<SimpleObject>.() -> Comparison
  * Here are all the modifiers listed by types:
  *
  * **Rounding:**
- * - [`round()`][round]
- * - [`floor()`][floor]
- * - [`ceil()`][ceil]
+ * - [round()][round]
+ * - [floor()][floor]
+ * - [ceil()][ceil]
  *
  * **Abs/Neg:**
- * - [`abs()`][abs]
- * - [`negative()`][negative]
+ * - [abs()][abs]
+ * - [negative()][negative]
  *
  * @property roundingType the type of the rounding applied to the value at runtime
  * @property absNegType the "abs/neg" type applied to the value at runtime
