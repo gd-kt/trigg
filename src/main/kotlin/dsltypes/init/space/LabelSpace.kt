@@ -1,7 +1,5 @@
 package dsltypes.init.space
 
-import Group
-import Group.Companion.group
 import dsltypes.init.MutableTriggInit
 import utils.groupClamping
 
@@ -14,58 +12,58 @@ interface LabelSpace {
      * The number of allowed labels for the memory of the script.
      * Owned by `trigg`.
      */
-    val registers: Group
+    val registers: UInt
 
     /**
      * The number of allowed labels for the memory of the script.
      * Owned by the user.
      */
-    val script: Group
+    val script: UInt
 
     /**
      * The offset at which labels are instantiated.
      */
-    val baseOffset: Group
+    val baseOffset: UInt
 
     /**
      * The offset at which **registers start** (inclusive)
      */
-    val registerOffset: Group
-        get() = this.baseOffset + 1.group
+    val registerOffset: UInt
+        get() = this.baseOffset + 1u
 
     /**
      * The offset at which **script labels start** (inclusive)
      */
-    val scriptOffset: Group
-        get() = this.registerOffset + 1.group + this.registers
+    val scriptOffset: UInt
+        get() = this.registerOffset + 1u + this.registers
 
     /**
      * The range in which registers are contained
      */
     val registerRange: UIntRange
-        get() = ((this.baseOffset.value + 1u)..(this.baseOffset.value + 1u + this.registers.value)).groupClamping()
+        get() = ((this.baseOffset + 1u)..(this.baseOffset + 1u + this.registers)).groupClamping()
 
     /**
      * The range in which script labels are contained
      */
     val scriptRange: UIntRange
-        get() = ((this.scriptOffset.value)..(this.registerRange.last + 1u + this.script.value)).groupClamping()
+        get() = ((this.scriptOffset)..(this.registerRange.last + 1u + this.script)).groupClamping()
 }
 
-data class MutableLabelSpace(override var registers: Group = 10.group, override var script: Group = 100.group, override var baseOffset: Group = 0.group): LabelSpace {
+data class MutableLabelSpace(override var registers: UInt = 10u, override var script: UInt = 100u, override var baseOffset: UInt = 0u): LabelSpace {
     init {
-        require(this.registers >= 1.group)
-        require(this.script >= 1.group)
+        require(this.registers >= 1u)
+        require(this.script >= 1u)
     }
 
     fun toImmutable(): ImmutableLabelSpace =
         ImmutableLabelSpace(this.registers, this.script, this.baseOffset)
 }
 
-data class ImmutableLabelSpace(override val registers: Group = 10.group, override val script: Group = 100.group, override val baseOffset: Group = 0.group): LabelSpace {
+data class ImmutableLabelSpace(override val registers: UInt = 10u, override val script: UInt = 100u, override val baseOffset: UInt = 0u): LabelSpace {
     init {
-        require(this.registers >= 1.group)
-        require(this.script >= 1.group)
+        require(this.registers >= 1u)
+        require(this.script >= 1u)
     }
 }
 
