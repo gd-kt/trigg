@@ -9,7 +9,6 @@ import editor.objects.triggers.misc.SpawnTrigger
 import editor.objects.triggers.setSpawned
 import generator.GroupAdder
 
-// TODO: spawn functions return SpawnTrigger
 @TriggDsl
 interface ScopedObjectAdder<Obj : GenericGdObject> {
     /**
@@ -34,9 +33,8 @@ interface ScopedObjectAdder<Obj : GenericGdObject> {
      * If any the object is a trigger, it will be set as [spawned][editor.objects.triggers.TriggerObject.setSpawned]
      * and [multi triggered][editor.objects.triggers.TriggerObject.multiTriggered]
      */
-    fun add(vararg objs: Obj) {
+    fun add(vararg objs: Obj) =
         this.add(objs.toList())
-    }
 
     /**
      * Adds at "compile time" objects to the final output.
@@ -51,13 +49,13 @@ interface ScopedObjectAdder<Obj : GenericGdObject> {
      * @param spawner what to spawn
      * @param delay the time after which the [lambda][spawner] will get spawned
      */
-    fun spawn(spawner: ObjectManager<Obj>.() -> Unit, delay: Float)
+    fun spawn(spawner: ObjectManager<Obj>.() -> Unit, delay: Float): SpawnTrigger
 
     /**
      * Spawns a lambda instantly (with a delay of `0`)
      * @param spawner what to spawn
      */
-    fun spawn(spawner: ObjectManager<Obj>.() -> Unit) =
+    fun spawn(spawner: ObjectManager<Obj>.() -> Unit): SpawnTrigger =
         this.spawn(spawner, 0f)
 
     /**

@@ -43,10 +43,8 @@ class GroupAdder(private val context: ObjectManager<SimpleObject>, val group: UI
         return obj
     }
 
-    override fun spawn(spawner: ObjectManager<SimpleObject>.() -> Unit, delay: Float) {
+    override fun spawn(spawner: ObjectManager<SimpleObject>.() -> Unit, delay: Float): SpawnTrigger {
         val acquiredGroup = this.context.acquireGroup()
-
-        this.addSpawnTrigger(acquiredGroup, delay)
 
         val collector = GroupAdder(this.context, acquiredGroup, addObjectsToContext = this.addObjectsToContext)
         collector.spawner()
@@ -55,15 +53,16 @@ class GroupAdder(private val context: ObjectManager<SimpleObject>, val group: UI
         // it adds a group
         this.collectedObjects.addAll(collector.collectedObjects)
         this.spawnBranches.add(collector.collectedObjects)
+
+        return this.addSpawnTrigger(acquiredGroup, delay)
     }
 
     override fun getNextPos(): Pos = this.context.getNextPos()
 
-    private fun addSpawnTrigger(targetID: UInt, delay: Float) {
+    private fun addSpawnTrigger(targetID: UInt, delay: Float): SpawnTrigger =
         this.add {
             SpawnTrigger(this.context.getNextPos(), targetID, delay)
         }
-    }
 
     override val nextFreeGroup: UInt
         get() = this.context.nextFreeGroup

@@ -83,17 +83,18 @@ class TriggProvider internal constructor(): ObjectManager<SimpleObject>, RawStri
         return obj
     }
 
-    override fun spawn(spawner: ObjectManager<SimpleObject>.() -> Unit, delay: Float) {
+    override fun spawn(spawner: ObjectManager<SimpleObject>.() -> Unit, delay: Float): SpawnTrigger {
         val acquiredGroup = this.acquireGroup()
-        this.add {
+
+        val collector = GroupAdder(this, acquiredGroup)
+        collector.spawner()
+
+        return this.add {
             val spawnTrigger = SpawnTrigger(this.getNextPos(), acquiredGroup, delay)
             spawnTrigger.setSpawned()
 
             return@add spawnTrigger
         }
-
-        val collector = GroupAdder(this, acquiredGroup)
-        collector.spawner()
     }
 
     /**
