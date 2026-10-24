@@ -154,9 +154,7 @@ class TriggProvider internal constructor(): ObjectManager<SimpleObject>, RawStri
     }
 }
 
-typealias TriggerProviderFunc = TriggProvider.() -> Unit
-
-fun trigg(triggEntryPoint: TriggerProviderFunc): String {
+fun trigg(triggEntryPoint: TriggProvider.() -> Unit): String {
     val trigg = TriggProvider()
 
     TriggProvider.INSTANCE = trigg
