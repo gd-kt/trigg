@@ -1,11 +1,7 @@
-package dsltypes.init
+package dsltypes.comparison
 
 import TriggDsl
-import dsltypes.init.comparison.Comparison
-import dsltypes.init.comparison.ComparisonCreator
-import dsltypes.init.comparison.ConditionalBranch
-import dsltypes.init.comparison.fail
-import dsltypes.init.comparison.then
+import dsltypes.values.ComparisonCreator
 import editor.objects.SimpleObject
 import provider.ObjectManager
 import provider.WrappedObjectManager

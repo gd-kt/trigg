@@ -1,4 +1,4 @@
-package dsltypes.init.comparison
+package dsltypes.values
 
 import editor.objects.SimpleObject
 import editor.objects.triggers.counters.PersistentTrigger

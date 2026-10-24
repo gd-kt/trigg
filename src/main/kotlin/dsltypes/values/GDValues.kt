@@ -1,5 +1,6 @@
-package dsltypes.init.comparison
+package dsltypes.values
 
+import dsltypes.comparison.Comparison
 import editor.objects.SimpleObject
 import editor.objects.triggers.counters.*
 import provider.GroupHandler

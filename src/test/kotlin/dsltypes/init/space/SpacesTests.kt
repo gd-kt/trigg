@@ -1,8 +1,6 @@
-package dsltypes.init
+package dsltypes.init.space
 
 import Group.Companion.group
-import dsltypes.init.space.MutableGroupSpace
-import dsltypes.init.space.MutableLabelSpace
 import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.Test
 import utils.overlaps

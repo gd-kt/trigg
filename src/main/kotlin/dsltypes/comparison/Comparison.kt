@@ -1,4 +1,4 @@
-package dsltypes.init.comparison
+package dsltypes.comparison
 
 import editor.objects.SimpleObject
 import editor.objects.data.Pos
