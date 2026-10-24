@@ -1,5 +1,6 @@
 package provider
 
+import Group
 import TriggDsl
 import editor.objects.GenericGdObject
 import editor.objects.SimpleObject
@@ -8,6 +9,7 @@ import editor.objects.triggers.misc.SpawnTrigger
 import editor.objects.triggers.setSpawned
 import generator.GroupAdder
 
+// TODO: spawn functions return SpawnTrigger
 @TriggDsl
 interface ScopedObjectAdder<Obj : GenericGdObject> {
     /**
@@ -67,6 +69,15 @@ interface ScopedObjectAdder<Obj : GenericGdObject> {
     fun getNextPos(): Pos
 }
 
-fun ScopedObjectAdder<SimpleObject>.add(groupAdder: GroupAdder) {
+/**
+ * Spawns a specific group
+ * @param group the group to spawn
+ * @return the created [SpawnTrigger]
+ */
+fun ScopedObjectAdder<in SpawnTrigger>.spawn(group: Group, delay: Float = 0f): SpawnTrigger =
+    this.add {
+        SpawnTrigger(this.getNextPos(), group.value, delay)
+    }
+
+fun ScopedObjectAdder<in SimpleObject>.add(groupAdder: GroupAdder) =
     this.add(groupAdder.collectedObjects)
-}
