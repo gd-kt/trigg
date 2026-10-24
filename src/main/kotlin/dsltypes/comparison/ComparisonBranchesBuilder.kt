@@ -14,12 +14,13 @@ class ComparisonBranchesBuilder(val ctx: ObjectManager<SimpleObject>, comp: Comp
     private val comp = comp(this.ctx)
 
     fun then(thenClause: ConditionalBranch): ComparisonBranchesBuilder {
-        this.comp.then(thenClause)
+        this.comp.then(thenClause, this.ctx.acquireGroup())
+
         return this
     }
 
     infix fun fail(elseClause: ConditionalBranch): ComparisonBranchesBuilder {
-        this.comp.fail(elseClause)
+        this.comp.fail(elseClause, this.ctx.acquireGroup())
         return this
     }
 
@@ -35,9 +36,8 @@ class ComparisonBranchesBuilder(val ctx: ObjectManager<SimpleObject>, comp: Comp
         return this
     }
 
-    fun build(): Comparison {
-        return this.comp
-    }
+    fun build(): Comparison =
+        this.comp
 }
 
 fun ObjectManager<SimpleObject>.comp(comp: ComparisonCreator, builder: ComparisonBranchesBuilder.() -> Unit): Comparison {
@@ -45,7 +45,7 @@ fun ObjectManager<SimpleObject>.comp(comp: ComparisonCreator, builder: Compariso
     builder(compBuilder)
 
     val comp = compBuilder.build()
+    comp.createAllObjects(this)
 
-    add(comp.createAllObjects(this))
     return comp
 }

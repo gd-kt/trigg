@@ -3,7 +3,9 @@ package dsltypes.comparison
 import editor.objects.SimpleObject
 import editor.objects.data.Pos
 import editor.objects.triggers.counters.ItemCompareTrigger
+import editor.rawstring.property.getOrThrow
 import generator.TriggObject
+import generator.onlyGroup
 import provider.ObjectManager
 
 typealias ConditionalBranch = ObjectManager<SimpleObject>.() -> Unit
@@ -34,8 +36,7 @@ class Comparison internal constructor(
         }
     }
 
-    // TODO
-    override fun createAllObjects(context: ObjectManager<SimpleObject>): Collection<SimpleObject> {
+    override fun createAllObjects(context: ObjectManager<SimpleObject>) {
         checkNotNull(this.thenClause) {
             "A then branch is required to build a condition"
         }
@@ -49,15 +50,20 @@ class Comparison internal constructor(
                    if (this.elseClause != null)
                        this@Comparison.elseClause!!(context)
            }
-        }
+        } else {
+            onlyGroup(this.obj.succeededSpawnID.getOrThrow()) {
+                this@Comparison.thenClause!!()
+            }
 
-        val res = mutableListOf<SimpleObject>()
+            if (this.elseClause != null)
+                onlyGroup(this.obj.failedSpawnID.getOrThrow()) {
+                    this@Comparison.elseClause!!()
+                }
+        }
 
         val compTrigger = this.createObject(context)
         if (compTrigger != null)
-            res.add(compTrigger)
-
-        return res
+            context.add(compTrigger)
     }
 
     enum class InlinedBranch {
@@ -83,7 +89,7 @@ class Comparison internal constructor(
     }
 }
 
-infix fun Comparison.then(thenClause: ConditionalBranch): Comparison {
+fun Comparison.then(thenClause: ConditionalBranch, groupID: UInt): Comparison {
     require(this.thenClause == null) {
         "Cannot set a 'then conditional branch' twice !"
     }
@@ -92,15 +98,17 @@ infix fun Comparison.then(thenClause: ConditionalBranch): Comparison {
         "Cannot set an 'then conditional branch' after an 'else' one !"
     }
 
+    this.obj.succeededSpawnID.value = groupID
     this.thenClause = thenClause
     return this
 }
 
-infix fun Comparison.fail(elseClause: ConditionalBranch): Comparison {
+fun Comparison.fail(elseClause: ConditionalBranch, groupID: UInt): Comparison {
     require(this.elseClause == null) {
         "Cannot set a 'else conditional branch' twice !"
     }
 
+    this.obj.failedSpawnID.value = groupID
     this.elseClause = elseClause
     return this
 }
