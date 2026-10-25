@@ -3,6 +3,7 @@ package dsltypes.comparison
 import TriggDsl
 import dsltypes.values.ComparisonCreator
 import editor.objects.SimpleObject
+import generator.onlyGroup
 import provider.ObjectManager
 import provider.WrappedObjectManager
 
@@ -27,9 +28,14 @@ class ComparisonBranchesBuilder(val ctx: ObjectManager<SimpleObject>, comp: Comp
     fun elseif(elseifComp: ComparisonCreator, elseifBranch: ConditionalBranch): ComparisonBranchesBuilder {
         val elseClause = checkNotNull(this.comp.elseClause) { "You must declare else if clauses after the else branch" }
         this.comp.elseClause = { compCtx ->
-            comp(elseifComp) {
-                then(elseifBranch)
-                fail(elseClause)
+            val acquiredGroup = this.ctx.acquireGroup()
+            this.comp.obj.failedSpawnID.value = acquiredGroup
+
+            onlyGroup(acquiredGroup) {
+                comp(elseifComp) {
+                    then(elseifBranch)
+                    fail(elseClause)
+                }
             }
         }
 
