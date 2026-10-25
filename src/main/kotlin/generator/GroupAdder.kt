@@ -8,6 +8,9 @@ import editor.objects.triggers.setSpawned
 import editor.rawstring.property.getOrThrow
 import provider.ObjectManager
 import provider.TriggProvider
+import kotlin.contracts.ExperimentalContracts
+import kotlin.contracts.InvocationKind
+import kotlin.contracts.contract
 
 /**
  * Collects objects which are all assigned a default group
@@ -91,8 +94,14 @@ class GroupAdder(
  * @see ObjectManager.groups
  * @see onlyGroup
  */
-inline fun ObjectManager<SimpleObject>.group(group: UInt, groupAdder: GroupAdder.() -> Unit) =
-    GroupAdder(this, group).apply(groupAdder)
+@OptIn(ExperimentalContracts::class)
+inline fun ObjectManager<SimpleObject>.group(group: UInt, groupAdder: GroupAdder.() -> Unit): GroupAdder {
+    contract {
+        callsInPlace(groupAdder, InvocationKind.EXACTLY_ONCE)
+    }
+
+    return GroupAdder(this, group).apply(groupAdder)
+}
 
 /**
  * Creates a [GroupAdder] to create objects at "compile time" with multiple groups.
@@ -103,8 +112,12 @@ inline fun ObjectManager<SimpleObject>.group(group: UInt, groupAdder: GroupAdder
  * @see ObjectManager.group
  * @see onlyGroup
  */
-@OptIn(ExperimentalUnsignedTypes::class)
+@OptIn(ExperimentalUnsignedTypes::class, ExperimentalContracts::class)
 fun ObjectManager<SimpleObject>.groups(vararg groups: UInt, groupAdder: GroupAdder.() -> Unit): GroupAdder {
+    contract {
+        callsInPlace(groupAdder, InvocationKind.EXACTLY_ONCE)
+    }
+
     val myGroupAdder = GroupAdder(this, groups.first()).apply(groupAdder)
 
     myGroupAdder.collectedObjects.forEach { obj ->
@@ -130,7 +143,12 @@ private const val ONLY_GROUP_TEMP_GROUP: UInt = UInt.MAX_VALUE
  * @see onlyGroups
  * @see ObjectManager.group
  */
+@OptIn(ExperimentalContracts::class)
 fun onlyGroup(group: UInt, groupAdder: GroupAdder.() -> Unit): GroupAdder {
+    contract {
+        callsInPlace(groupAdder, InvocationKind.EXACTLY_ONCE)
+    }
+
     val myGroupAdder = GroupAdder(TriggProvider.getInstance(), ONLY_GROUP_TEMP_GROUP).apply(groupAdder)
     myGroupAdder.collectedObjects.forEach {
         if (it.groups.getOrThrow().contains(ONLY_GROUP_TEMP_GROUP)) {
@@ -155,8 +173,12 @@ fun onlyGroup(group: UInt, groupAdder: GroupAdder.() -> Unit): GroupAdder {
  * @see onlyGroup
  * @see ObjectManager.group
  */
-@OptIn(ExperimentalUnsignedTypes::class)
+@OptIn(ExperimentalUnsignedTypes::class, ExperimentalContracts::class)
 fun onlyGroups(vararg groups: UInt, groupAdder: GroupAdder.() -> Unit): GroupAdder {
+    contract {
+        callsInPlace(groupAdder, InvocationKind.EXACTLY_ONCE)
+    }
+
     val myGroupAdder = GroupAdder(TriggProvider.getInstance(), 0u).apply(groupAdder)
     myGroupAdder.collectedObjects.forEach {
         if (it.groups.getOrThrow().contains(ONLY_GROUP_TEMP_GROUP)) {

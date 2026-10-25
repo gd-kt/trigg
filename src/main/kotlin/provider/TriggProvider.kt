@@ -14,6 +14,9 @@ import editor.wsliveeditor.WSLiveEditor
 import generator.GroupAdder
 import generator.group
 import kotlin.collections.mutableListOf
+import kotlin.contracts.ExperimentalContracts
+import kotlin.contracts.InvocationKind
+import kotlin.contracts.contract
 
 /**
  * The base class for everything trigg related.
@@ -122,7 +125,12 @@ class TriggProvider internal constructor(): ObjectManager<SimpleObject>, RawStri
      * @param entrypointSpawner the lambda that will get spawned as the entrypoint
      * @see executeEntrypoint
      */
+    @OptIn(ExperimentalContracts::class)
     fun entrypoint(execute: Boolean = true, entrypointSpawner: ObjectManager<SimpleObject>.() -> Unit) {
+        contract {
+            callsInPlace(entrypointSpawner, InvocationKind.EXACTLY_ONCE)
+        }
+
         group(this.init.groupSpace.entrypoint.toUInt(), entrypointSpawner)
 
         if (execute)
@@ -156,11 +164,16 @@ class TriggProvider internal constructor(): ObjectManager<SimpleObject>, RawStri
     }
 }
 
-fun trigg(triggEntryPoint: TriggProvider.() -> Unit): String {
+@OptIn(ExperimentalContracts::class)
+fun trigg(triggBuilder: TriggProvider.() -> Unit): String {
+    contract {
+        callsInPlace(triggBuilder, InvocationKind.EXACTLY_ONCE)
+    }
+
     val trigg = TriggProvider()
 
     TriggProvider.INSTANCE = trigg
-    triggEntryPoint(trigg)
+    triggBuilder(trigg)
     TriggProvider.INSTANCE = null
 
     if (trigg.init.clearPreviousObjects)
