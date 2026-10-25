@@ -15,7 +15,11 @@ import kotlin.collections.first
  * @property group the group to assign
  * @property addObjectsToContext if the objects should get automatically added to the [context]
  */
-class GroupAdder(private val context: ObjectManager<SimpleObject>, val group: UInt = 0u, val addObjectsToContext: Boolean = true): ObjectManager<SimpleObject> {
+class GroupAdder(
+    private val context: ObjectManager<SimpleObject>,
+    val group: UInt = 0u,
+    val addObjectsToContext: Boolean = true
+): ObjectManager<SimpleObject> {
     /**
      * The objects that were collected.
      * To add objects, you must do it through the [add] functions
@@ -80,7 +84,11 @@ class GroupAdder(private val context: ObjectManager<SimpleObject>, val group: UI
 // TODO: Tests for all "group" functions
 
 /**
- * Creates a [GroupAdder] to create objects at "compile time" with a given group
+ * Creates a [GroupAdder] to create objects at "compile time" with a given group.
+ * If there are spawn branches, these won't get assigned the given [group], only
+ * the root objects will.
+ * @param group the group to add to all the collected objects
+ * @param groupAdder the lambda used to collected all the objects
  * @see ObjectManager.groups
  * @see onlyGroup
  */
@@ -88,7 +96,11 @@ fun ObjectManager<SimpleObject>.group(group: UInt, groupAdder: GroupAdder.() -> 
     GroupAdder(this, group).apply(groupAdder)
 
 /**
- * Creates a [GroupAdder] to create objects at "compile time" with multiple groups
+ * Creates a [GroupAdder] to create objects at "compile time" with multiple groups.
+ * If there are spawn branches, these won't get assigned the given [group], only
+ * the root objects will.
+ * @param groups the groups to add to all the collected objects
+ * @param groupAdder the lambda used to collected all the objects
  * @see ObjectManager.group
  * @see onlyGroup
  */
@@ -108,10 +120,14 @@ private const val ONLY_GROUP_TEMP_GROUP: UInt = UInt.MAX_VALUE
 
 /**
  * Creates a [GroupAdder] to create objects at "compile time" with a given [group].
+ * If there are spawn branches, these won't get assigned the given [group], only
+ * the root objects will.
  *
  * Unlike [ObjectManager.group], if for example we're inside a `spawn` statement
  * but want to add objects only with a given group, then this can prove to
  * be useful
+ * @param group the group to add to all the collected objects
+ * @param groupAdder the lambda used to collected all the objects
  * @see onlyGroups
  * @see ObjectManager.group
  */
@@ -129,10 +145,14 @@ fun onlyGroup(group: UInt, groupAdder: GroupAdder.() -> Unit): GroupAdder {
 
 /**
  * Creates a [GroupAdder] to create objects at "compile time" with a given [group].
+ * If there are spawn branches, these won't get assigned the given [group], only
+ * the root objects will.
  *
  * Unlike [ObjectManager.group], if for example we're inside a `spawn` statement
  * but want to add objects only with a given group, then this can prove to
  * be useful
+ * @param groups the groups to add to all the collected objects
+ * @param groupAdder the lambda used to collected all the objects
  * @see onlyGroup
  * @see ObjectManager.group
  */
