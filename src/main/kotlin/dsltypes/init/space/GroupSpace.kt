@@ -14,7 +14,7 @@ interface GroupSpace {
     /**
      * The group used as an entrypoint
      */
-    val entrypoint: Group
+    val entrypoint: Group // TODO: Nullable + null as default. If null will acquire a new group as entrypoint
 
     /**
      * The offset for all groups
