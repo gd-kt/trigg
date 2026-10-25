@@ -8,7 +8,6 @@ import editor.objects.triggers.setSpawned
 import editor.rawstring.property.getOrThrow
 import provider.ObjectManager
 import provider.TriggProvider
-import kotlin.collections.first
 
 /**
  * Collects objects which are all assigned a default group

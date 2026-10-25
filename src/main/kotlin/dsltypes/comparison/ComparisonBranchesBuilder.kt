@@ -13,35 +13,119 @@ import provider.WrappedObjectManager
 @TriggDsl
 class ComparisonBranchesBuilder(val ctx: ObjectManager<SimpleObject>, comp: ComparisonCreator): WrappedObjectManager<SimpleObject>(ctx) {
     private val comp = comp(this.ctx)
+    private var latestCompBranch: Comparison = this.comp
 
+    /**
+     * Sets the `then` branch of this comparison.
+     *
+     * For example
+     * ```kotlin
+     * comp(attempts() greaterThan const(15)) {
+     *     then {
+     *         // ...
+     *     }
+     * }
+     * ```
+     *
+     * is equivalent to:
+     * ```kotlin
+     * if (atts >= 15) {
+     *     // ...
+     * }
+     * ```
+     */
     fun then(thenClause: ConditionalBranch): ComparisonBranchesBuilder {
         this.comp.then(thenClause, this.ctx.acquireGroup())
-
         return this
     }
 
+    /**
+     * Sets the `else` branch of this comparison on the furthest branch.
+     *
+     * For example
+     * ```kotlin
+     * comp(attempts() greaterThan const(15)) {
+     *     then {
+     *         // ...
+     *     }
+     *
+     *     fail {
+     *         // ...
+     *     }
+     * }
+     * ```
+     *
+     * is equivalent to:
+     * ```kotlin
+     * if (atts >= 15) {
+     *     // ...
+     * } else {
+     *     // ...
+     * }
+     * ```
+     */
     infix fun fail(elseClause: ConditionalBranch): ComparisonBranchesBuilder {
-        this.comp.fail(elseClause, this.ctx.acquireGroup())
+        this.latestCompBranch.fail(elseClause, this.ctx.acquireGroup())
         return this
     }
 
+    /**
+     * Sets the `else if` branch of this comparison on the furthest branch.
+     *
+     *
+     * For example
+     * ```kotlin
+     * comp(attempts() greaterThan const(15)) {
+     *     then {
+     *         // ...
+     *     }
+     *
+     *     elseif(attempts() equalsTo const(7)) {
+     *         // ...
+     *     }
+     * }
+     * ```
+     *
+     * is equivalent to:
+     * ```kotlin
+     * if (atts >= 15) {
+     *     // ...
+     * } else if (atts == 7) {
+     *     // ...
+     * }
+     *
+     * // Internally it gets translated to:
+     * if (atts >= 15) {
+     *     // ...
+     * } else {
+     *     if (atts == 7) {
+     *         // ...
+     *     }
+     * }
+     * ```
+     */
     fun elseif(elseifComp: ComparisonCreator, elseifBranch: ConditionalBranch): ComparisonBranchesBuilder {
-        val elseClause = checkNotNull(this.comp.elseClause) { "You must declare else if clauses after the else branch" }
-        this.comp.elseClause = { compCtx ->
+        val compBuilder = ComparisonBranchesBuilder(this, elseifComp)
+        compBuilder.then(elseifBranch)
+
+        val latestComp = this@ComparisonBranchesBuilder.latestCompBranch
+        latestComp.elseClause = { compCtx ->
             val acquiredGroup = this.ctx.acquireGroup()
-            this.comp.obj.failedSpawnID.value = acquiredGroup
+            latestComp.obj.failedSpawnID.value = acquiredGroup
 
             onlyGroup(acquiredGroup) {
-                comp(elseifComp) {
-                    then(elseifBranch)
-                    fail(elseClause)
-                }
+                val comp = compBuilder.build()
+                comp.createAllObjects(this)
             }
         }
 
+        this.latestCompBranch = compBuilder.comp
         return this
     }
 
+    /**
+     * Builds the comparison of this [ComparisonBranchesBuilder]
+     */
     fun build(): Comparison =
         this.comp
 }
