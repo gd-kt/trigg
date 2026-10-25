@@ -92,7 +92,7 @@ class GroupAdder(
  * @see ObjectManager.groups
  * @see onlyGroup
  */
-fun ObjectManager<SimpleObject>.group(group: UInt, groupAdder: GroupAdder.() -> Unit) =
+inline fun ObjectManager<SimpleObject>.group(group: UInt, groupAdder: GroupAdder.() -> Unit) =
     GroupAdder(this, group).apply(groupAdder)
 
 /**
