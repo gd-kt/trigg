@@ -18,3 +18,9 @@ internal fun TriggProvider.testsInit(initGetter: MutableTriggInit.() -> Unit) {
             groupSpace.entrypoint = (TriggerProperties.MAX_GROUPS - 1u).group
     }
 }
+
+@Suppress("TestFunctionName")
+fun TestTriggProvider(initGetter: MutableTriggInit.() -> Unit = {}): TriggProvider =
+    TriggProvider().apply {
+        testsInit(initGetter)
+    }
