@@ -20,6 +20,8 @@ import kotlin.contracts.contract
 
 /**
  * The base class for everything trigg related.
+ * A [TriggProvider] is created using the [trigg] function
+ *
  * Only 1 instance can be created at the same time. For example this is invalid and will throw an exception:
  * ```kotlin
  * trigg {
@@ -49,6 +51,9 @@ class TriggProvider internal constructor(): ObjectManager<SimpleObject>, RawStri
         }
     }
 
+    /**
+     * Contains **all** the objects created using this [TriggProvider]
+     */
     val addedObjects: List<GenericGdObject>
         field: MutableList<GenericGdObject> = mutableListOf()
 
@@ -164,6 +169,13 @@ class TriggProvider internal constructor(): ObjectManager<SimpleObject>, RawStri
     }
 }
 
+// TODO: Link doc in KDoc
+// TODO: Return new class containing trigg instance
+/**
+ * The first function used in any trigg script.
+ * It creates a [TriggProvider] which is then used to add
+ * objects, do comparisons, etc...
+ */
 @OptIn(ExperimentalContracts::class)
 fun trigg(triggBuilder: TriggProvider.() -> Unit): String {
     contract {
