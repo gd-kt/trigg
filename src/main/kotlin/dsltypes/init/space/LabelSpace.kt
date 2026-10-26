@@ -5,7 +5,7 @@ import utils.groupClamping
 
 interface LabelSpace {
     companion object {
-        val DEFAULT = ImmutableLabelSpace()
+        val DEFAULT = MutableLabelSpace().toImmutable()
     }
 
     /**
@@ -60,7 +60,7 @@ data class MutableLabelSpace(override var registers: UInt = 10u, override var sc
         ImmutableLabelSpace(this.registers, this.script, this.baseOffset)
 }
 
-data class ImmutableLabelSpace(override val registers: UInt = 10u, override val script: UInt = 100u, override val baseOffset: UInt = 0u): LabelSpace {
+data class ImmutableLabelSpace(override val registers: UInt, override val script: UInt, override val baseOffset: UInt): LabelSpace {
     init {
         require(this.registers >= 1u)
         require(this.script >= 1u)
