@@ -22,6 +22,11 @@ class GroupAdder(
     val group: UInt = 0u,
     val addObjectsToContext: Boolean = true
 ): ObjectManager<SimpleObject> {
+    init {
+        if (this.context is TriggProvider)
+            this.context.throwIfFinished()
+    }
+
     /**
      * The objects that were collected.
      * To add objects, you must do it through the [add] functions
