@@ -46,7 +46,7 @@ class TriggProvider internal constructor(): ObjectManager<SimpleObject>, RawStri
     }
 
     init {
-        require(INSTANCE == null) {
+        check(INSTANCE == null) {
             "Cannot create more than 1 trigg instance at the same time !"
         }
     }
