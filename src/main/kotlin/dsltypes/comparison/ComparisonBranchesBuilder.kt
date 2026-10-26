@@ -8,7 +8,8 @@ import provider.ObjectManager
 import provider.WrappedObjectManager
 
 /**
- * A trigg dsl class used to build the branches of a [Comparison]
+ * A trigg dsl class used to build the branches of a [Comparison].
+ * To create a [ComparisonBranchesBuilder], use [ObjectManager.comp]
  */
 @TriggDsl
 class ComparisonBranchesBuilder(val ctx: ObjectManager<SimpleObject>, comp: ComparisonCreator): WrappedObjectManager<SimpleObject>(ctx) {
@@ -35,12 +36,13 @@ class ComparisonBranchesBuilder(val ctx: ObjectManager<SimpleObject>, comp: Comp
      * ```
      */
     fun then(thenClause: ConditionalBranch): ComparisonBranchesBuilder {
-        this.comp.then(thenClause, this.ctx.acquireGroup())
+        this.comp.then(thenClause) { this.ctx.acquireGroup() }
         return this
     }
 
     /**
      * Sets the `else` branch of this comparison on the furthest branch.
+     * It must be the last call in this builder.
      *
      * For example
      * ```kotlin
@@ -65,13 +67,12 @@ class ComparisonBranchesBuilder(val ctx: ObjectManager<SimpleObject>, comp: Comp
      * ```
      */
     infix fun fail(elseClause: ConditionalBranch): ComparisonBranchesBuilder {
-        this.latestCompBranch.fail(elseClause, this.ctx.acquireGroup())
+        this.latestCompBranch.fail(elseClause) { this.ctx.acquireGroup() }
         return this
     }
 
     /**
      * Sets the `else if` branch of this comparison on the furthest branch.
-     *
      *
      * For example
      * ```kotlin
@@ -105,6 +106,14 @@ class ComparisonBranchesBuilder(val ctx: ObjectManager<SimpleObject>, comp: Comp
      * ```
      */
     fun elseif(elseifComp: ComparisonCreator, elseifBranch: ConditionalBranch): ComparisonBranchesBuilder {
+        check(this.comp.thenClause != null) {
+            "Cannot make an else-if branch before a then branch"
+        }
+
+        check(this.latestCompBranch.elseClause == null) {
+            "Cannot make an else-if branch after an else branch"
+        }
+
         val compBuilder = ComparisonBranchesBuilder(this, elseifComp)
         compBuilder.then(elseifBranch)
 
