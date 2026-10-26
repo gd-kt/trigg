@@ -96,16 +96,8 @@ open class GDValue(
                 val a = this.expectedValue.toDouble()
                 val b = other.expectedValue.toDouble()
 
-                val res = when (compType) {
-                    ItemCompareComparisonType.EQUAL -> Comparison.InlinedBranch.fromEvaluation(a == b)
-                    ItemCompareComparisonType.NOT_EQUAL -> Comparison.InlinedBranch.fromEvaluation(a != b)
-                    ItemCompareComparisonType.GREATER_THAN -> Comparison.InlinedBranch.fromEvaluation(a > b)
-                    ItemCompareComparisonType.GREATER_THAN_EQUAL -> Comparison.InlinedBranch.fromEvaluation(a >= b)
-                    ItemCompareComparisonType.LESS_THAN -> Comparison.InlinedBranch.fromEvaluation(a < b)
-                    ItemCompareComparisonType.LESS_THAN_EQUAL -> Comparison.InlinedBranch.fromEvaluation(a <= b)
-                }
-
-                return@ComparisonCreator Comparison(inlinedBranch = res)
+                val inlinedBranch = Comparison.InlinedBranch.fromEvaluation(compType.compare(a, b))
+                return@ComparisonCreator Comparison(inlinedBranch = inlinedBranch, operator = compType)
             }
 
             val itemCompTrigger = ItemCompareTrigger(ctx.getNextPos()).apply {
@@ -128,7 +120,7 @@ open class GDValue(
                     secondTermFactor.value = other.value.toFloat()
             }
 
-            Comparison(itemCompTrigger)
+            Comparison(itemCompTrigger, operator = compType)
         }
 
     /**
