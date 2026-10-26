@@ -70,6 +70,30 @@ class Comparison internal constructor(
             context.add(compTrigger)
     }
 
+    fun then(thenClause: ConditionalBranch, groupID: UInt): Comparison {
+        check(this.thenClause == null) {
+            "Cannot set a 'then conditional branch' twice !"
+        }
+
+        check(this.elseClause == null) {
+            "Cannot set an 'then conditional branch' after an 'else' one !"
+        }
+
+        this.obj.succeededSpawnID.value = groupID
+        this.thenClause = thenClause
+        return this
+    }
+
+    fun fail(elseClause: ConditionalBranch, groupID: UInt): Comparison {
+        check(this.elseClause == null) {
+            "Cannot set a 'else conditional branch' twice !"
+        }
+
+        this.obj.failedSpawnID.value = groupID
+        this.elseClause = elseClause
+        return this
+    }
+
     /**
      * Represents the comparison branch that should be inlined.
      *
@@ -99,28 +123,4 @@ class Comparison internal constructor(
                     INLINE_ELSE
         }
     }
-}
-
-fun Comparison.then(thenClause: ConditionalBranch, groupID: UInt): Comparison {
-    require(this.thenClause == null) {
-        "Cannot set a 'then conditional branch' twice !"
-    }
-
-    require(this.elseClause == null) {
-        "Cannot set an 'then conditional branch' after an 'else' one !"
-    }
-
-    this.obj.succeededSpawnID.value = groupID
-    this.thenClause = thenClause
-    return this
-}
-
-fun Comparison.fail(elseClause: ConditionalBranch, groupID: UInt): Comparison {
-    require(this.elseClause == null) {
-        "Cannot set a 'else conditional branch' twice !"
-    }
-
-    this.obj.failedSpawnID.value = groupID
-    this.elseClause = elseClause
-    return this
 }
