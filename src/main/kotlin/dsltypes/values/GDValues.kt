@@ -206,7 +206,7 @@ abstract class NumberGDValue<N : Number>(val value: N, type: ItemTriggerTermType
      * @param newValue the value to set in the copy
      * @return the copy with the newly set value
      */
-    abstract fun with(newValue: N): NumberGDValue<N> // TODO: Test
+    abstract fun with(newValue: N): NumberGDValue<N>
 
     /**
      * The expected value that will be evaluated by Geometry Dash
