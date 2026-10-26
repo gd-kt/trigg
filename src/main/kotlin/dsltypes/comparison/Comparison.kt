@@ -10,6 +10,11 @@ import provider.ObjectManager
 
 typealias ConditionalBranch = ObjectManager<SimpleObject>.() -> Unit
 
+/**
+ * A comparison between 2 [GDValues][dsltypes.values.GDValue].
+ * To create a comparison you need to use [ObjectManager.comp]
+ * @see ObjectManager.comp
+ */
 class Comparison internal constructor(
     internal val obj: ItemCompareTrigger = ItemCompareTrigger(Pos.ZERO),
     val inlinedBranch: InlinedBranch? = null,
@@ -65,6 +70,14 @@ class Comparison internal constructor(
             context.add(compTrigger)
     }
 
+    /**
+     * Represents the comparison branch that should be inlined.
+     *
+     * Geometry dash doesn't natively support comparing 2
+     * numbers, and even if it did, that would do unnecessary
+     * calculations, this is why a [Comparison] inlines
+     * the executed branch
+     */
     enum class InlinedBranch {
         /**
          * If the [Comparison] was precomputed and the result was
