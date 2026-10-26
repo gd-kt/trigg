@@ -276,7 +276,7 @@ context(ctx: ObjectManager<in SimpleObject>)
 fun WithIdGDValue.setValue(value: Number) =
     this.setValue(ctx, value)
 
-context(ctx: ObjectManager<in  SimpleObject>)
+context(ctx: ObjectManager<in SimpleObject>)
 fun WithIdGDValue.setValue(value: UInt) =
     this.setValue(ctx, value)
 
@@ -362,6 +362,16 @@ fun GDValue.applyModifiers(value: Float): Float =
  */
 fun GDValue.applyModifiers(value: UInt): UInt =
     this.applyModifiers(value.toInt()).toUInt()
+
+/**
+ * Resets the modifiers of this [GDValue]
+ * @see roundingType
+ * @see absNegType
+ */
+fun GDValue.resetModifiers() {
+    this.roundingType = ItemTriggerRoundingType.NONE
+    this.absNegType = ItemTriggerAbsNeg.NONE
+}
 
 class ItemGDValue(itemID: UInt? = null) : WithIdGDValue(itemID, type = ItemTriggerTermType.ITEM)
 class TimerGDValue(timerID: UInt) : WithIdGDValue(timerID, type = ItemTriggerTermType.TIMER)
