@@ -2,6 +2,7 @@ package dsltypes.comparison
 
 import editor.objects.SimpleObject
 import editor.objects.data.Pos
+import editor.objects.triggers.counters.ItemCompareComparisonType
 import editor.objects.triggers.counters.ItemCompareTrigger
 import editor.rawstring.property.getOrThrow
 import generator.TriggObject
@@ -18,6 +19,7 @@ typealias ConditionalBranch = ObjectManager<SimpleObject>.() -> Unit
 class Comparison internal constructor(
     internal val obj: ItemCompareTrigger = ItemCompareTrigger(Pos.ZERO),
     val inlinedBranch: InlinedBranch? = null,
+    val operator: ItemCompareComparisonType,
     thenClause: ConditionalBranch? = null,
     elseClause: ConditionalBranch? = null
 ): TriggObject<ItemCompareTrigger> {
@@ -86,8 +88,12 @@ class Comparison internal constructor(
     }
 
     fun fail(elseClause: ConditionalBranch, groupAcquirer: () -> UInt): Comparison {
+        check(this.thenClause != null) {
+            "Cannot set an 'else conditional branch' before a 'then' one !"
+        }
+
         check(this.elseClause == null) {
-            "Cannot set a 'else conditional branch' twice !"
+            "Cannot set an 'else conditional branch' twice !"
         }
 
         if (this.inlinedBranch == null)
