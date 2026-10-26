@@ -413,8 +413,11 @@ fun attempts() = AttemptGDValue()
 
 /**
  * Creates a [IntGDValue] from a constant number.
- * @param value the value to store. It always gets converted to an [Int]
+ *
+ * To create a constant float value, use [constFloat].
+ * @param value the value to store. It always gets **converted to an [Int]**
  * @return the created [IntGDValue] from the given [value]
+ * @see constFloat
  */
 fun const(value: Number) =
     IntGDValue(value.toInt())
@@ -430,9 +433,12 @@ fun const(value: UInt) =
 /**
  * Creates a [FloatGDValue] from a constant **float** number.
  * This value if stored in a label will always get floored.
- * GD doesn't store floats. This is only usable for comparisons
+ * GD doesn't store floats. This is only usable for comparisons.
+ *
+ * To create a constant integer value, use [const].
  * @param value the value to store. It always **gets converted to an [Float]**
  * @return the created [FloatGDValue] from the given [value]
+ * @see const
  */
 fun constFloat(value: Number) =
     FloatGDValue(value.toFloat())
