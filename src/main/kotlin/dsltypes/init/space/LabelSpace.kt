@@ -68,9 +68,10 @@ data class ImmutableLabelSpace(override val registers: UInt, override val script
 }
 
 fun MutableTriggInit.labelSpace(labelSpaceSetter: MutableLabelSpace.() -> Unit) {
+    require(this.labelSpace === LabelSpace.DEFAULT) { "Cannot set twice the label space of a trigg dsl !" }
+
     val labelSpace = MutableLabelSpace()
     labelSpaceSetter(labelSpace)
 
-    require(this.labelSpace === LabelSpace.DEFAULT) { "Cannot set twice the label space of a trigg dsl !" }
     this.labelSpace = labelSpace.toImmutable()
 }

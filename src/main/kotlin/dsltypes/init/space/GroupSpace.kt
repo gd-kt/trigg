@@ -115,11 +115,10 @@ data class ImmutableGroupSpace(
 }
 
 fun MutableTriggInit.groupSpace(groupSpaceSetter: MutableGroupSpace.() -> Unit) {
+    require(this.groupSpace === GroupSpace.DEFAULT) { "Cannot set twice the group space of a trigg dsl !" }
+
     val groupSpace = MutableGroupSpace()
     groupSpaceSetter(groupSpace)
 
-    groupSpace.getOrSetEntrypoint(this.triggProvider)
-
-    require(this.groupSpace === GroupSpace.DEFAULT) { "Cannot set twice the group space of a trigg dsl !" }
     this.groupSpace = groupSpace.toImmutable()
 }
