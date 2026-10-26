@@ -71,7 +71,14 @@ class TriggProvider internal constructor(): ObjectManager<SimpleObject>, RawStri
      * This gets set to `true` as soon as this
      * gets mutated in any way
      */
-    var lockedInit: Boolean = false
+    var isInitLocked: Boolean = false
+        internal set
+
+    /**
+     * If this trigg instance's entrypoint has been initialized
+     * @see entrypoint
+     */
+    var entrypointInitialized: Boolean = false
         private set
 
     private var currentPos: Pos = Pos.gridCentered(-1f, 0f)
@@ -96,7 +103,7 @@ class TriggProvider internal constructor(): ObjectManager<SimpleObject>, RawStri
     }
 
     private fun lockInit() {
-        this.lockedInit = true
+        this.isInitLocked = true
     }
 
     /**
@@ -104,7 +111,7 @@ class TriggProvider internal constructor(): ObjectManager<SimpleObject>, RawStri
      */
     fun init(initGetter: MutableTriggInit.() -> Unit) {
         this.throwIfFinished()
-        check(!this.lockedInit) { "Cannot initialize this trigg instance's properties after mutating the trigg instance" }
+        check(!this.isInitLocked) { "Cannot initialize this trigg instance's properties after mutating the trigg instance" }
         check(this._init == null) { "Cannot set twice the init block of a TriggProvider" }
 
         val triggInit = MutableTriggInit(this)
@@ -114,6 +121,7 @@ class TriggProvider internal constructor(): ObjectManager<SimpleObject>, RawStri
     }
 
     override fun <T: SimpleObject> add(obj: T): T {
+        this.lockInit()
         this.throwIfFinished()
         this.addedObjects.add(obj)
         obj.groups.add(this.init.commonGroup.value)
@@ -168,6 +176,9 @@ class TriggProvider internal constructor(): ObjectManager<SimpleObject>, RawStri
 
         this.lockInit()
         this.throwIfFinished()
+        check(!this.entrypointInitialized) { "Cannot set two entrypoints" }
+
+        this.entrypointInitialized = true
         group(this.init.groupSpace.getEntrypoint(this).toUInt(), entrypointSpawner)
 
         if (execute)
