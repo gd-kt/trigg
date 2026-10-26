@@ -5,6 +5,7 @@ import dsltypes.init.space.groupSpace
 import dsltypes.init.space.labelSpace
 import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.Test
+import testsInit
 
 private class GroupHandlerTests {
     @Test
@@ -14,7 +15,7 @@ private class GroupHandlerTests {
         Assertions.assertEquals(ctx.init.groupSpace.baseOffset.value + 2u, ctx.acquireGroup())
 
         val ctx2 = TriggProvider()
-        ctx2.init {
+        ctx2.testsInit {
             groupSpace {
                 baseOffset = 5.group
             }

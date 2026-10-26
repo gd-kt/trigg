@@ -3,6 +3,7 @@ package dsltypes.init.space
 import Group.Companion.group
 import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.Test
+import provider.TriggProvider
 import utils.overlaps
 
 private class LabelSpaceTests {
@@ -25,8 +26,9 @@ private class LabelSpaceTests {
 private class GroupSpaceTests {
     @Test
     fun rangeTests() {
+        val ctx = TriggProvider()
         val groupSpace = MutableGroupSpace()
-        Assertions.assertEquals(9998.group, groupSpace.entrypoint)
+        Assertions.assertEquals(1.group, groupSpace.getEntrypoint(ctx))
 
         Assertions.assertEquals(1u..(groupSpace.allocatedGroups.value + 1u), groupSpace.groupRange)
 
