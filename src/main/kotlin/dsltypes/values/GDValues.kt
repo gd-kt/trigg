@@ -6,6 +6,7 @@ import editor.objects.triggers.counters.*
 import provider.GroupHandler
 import provider.ObjectManager
 import kotlin.math.abs
+import kotlin.math.ceil
 import kotlin.math.floor
 import kotlin.math.round
 
@@ -32,7 +33,7 @@ typealias ComparisonCreator = ObjectManager<SimpleObject>.() -> Comparison
  * can contain an itemID or a timerID.
  * In a trigg context you can do:
  * ```kotlin
- * myValue = persistent {  }
+ * myValue = persistent { const(/* ... */) }
  * ```
  *
  * ## Constructors
@@ -210,7 +211,7 @@ abstract class NumberGDValue<N : Number>(val value: N, type: ItemTriggerTermType
     /**
      * The expected value that will be evaluated by Geometry Dash
      */
-    val expectedValue: N // TODO: Test
+    val expectedValue: N
         get() {
             val doubleValue = this.value.toDouble()
             return this.numberToN(this.applyModifiers(doubleValue))
@@ -307,6 +308,9 @@ class FloatGDValue(value: Float): NumberGDValue<Float>(value) {
 
 /**
  * Applies the modifiers of this [value][GDValue] to the given [value].
+ * They are applied like this: `absNeg(roundingType(value))`, this is the order
+ * in which Geometry Dash applies it.
+ *
  * To learn more about modifiers, read [GDValue]'s KDoc
  */
 fun GDValue.applyModifiers(value: Int): Int {
@@ -319,6 +323,9 @@ fun GDValue.applyModifiers(value: Int): Int {
 
 /**
  * Applies the modifiers of this [value][GDValue] to the given [value].
+ * They are applied like this: `absNeg(roundingType(value))`, this is the order
+ * in which Geometry Dash applies it.
+ *
  * To learn more about modifiers, read [GDValue]'s KDoc
  */
 fun GDValue.applyModifiers(value: Double): Double {
@@ -326,7 +333,7 @@ fun GDValue.applyModifiers(value: Double): Double {
     when (this.roundingType) {
         ItemTriggerRoundingType.ROUND -> res = round(res)
         ItemTriggerRoundingType.FLOOR -> res = floor(res)
-        ItemTriggerRoundingType.CEIL -> res = round(res)
+        ItemTriggerRoundingType.CEIL -> res = ceil(res)
         else -> {}
     }
 
@@ -341,6 +348,9 @@ fun GDValue.applyModifiers(value: Double): Double {
 
 /**
  * Applies the modifiers of this [value][GDValue] to the given [value].
+ * They are applied like this: `absNeg(roundingType(value))`, this is the order
+ * in which Geometry Dash applies it.
+ *
  * To learn more about modifiers, read [GDValue]'s KDoc
  */
 fun GDValue.applyModifiers(value: Float): Float =
