@@ -175,36 +175,66 @@ open class GDValue(
 
     /**
      * Operator `==`
+     * @see notEqualTo
+     * @see greaterThan
+     * @see greaterThanEqual
+     * @see lessThan
+     * @see lessThanEqual
      */
     infix fun equalsTo(other: GDValue): ComparisonCreator =
         this.createCompareTrigger(other, ItemCompareComparisonType.EQUAL)
 
     /**
      * Operator `!=`
+     * @see equalsTo
+     * @see greaterThan
+     * @see greaterThanEqual
+     * @see lessThan
+     * @see lessThanEqual
      */
     infix fun notEqualTo(other: GDValue): ComparisonCreator =
         this.createCompareTrigger(other, ItemCompareComparisonType.NOT_EQUAL)
 
     /**
      * Operator `>`
+     * @see equalsTo
+     * @see notEqualTo
+     * @see greaterThanEqual
+     * @see lessThan
+     * @see lessThanEqual
      */
     infix fun greaterThan(other: GDValue): ComparisonCreator =
         this.createCompareTrigger(other, ItemCompareComparisonType.GREATER_THAN)
 
     /**
      * Operator `>=`
+     * @see equalsTo
+     * @see notEqualTo
+     * @see greaterThan
+     * @see lessThan
+     * @see lessThanEqual
      */
     infix fun greaterThanEqual(other: GDValue): ComparisonCreator =
         this.createCompareTrigger(other, ItemCompareComparisonType.GREATER_THAN_EQUAL)
 
     /**
      * Operator `<`
+     * @see equalsTo
+     * @see notEqualTo
+     * @see greaterThan
+     * @see greaterThanEqual
+     * @see lessThanEqual
      */
     infix fun lessThan(other: GDValue): ComparisonCreator =
         this.createCompareTrigger(other, ItemCompareComparisonType.LESS_THAN)
 
     /**
      * Operator `<=`
+     * @see equalsTo
+     * @see notEqualTo
+     * @see greaterThan
+     * @see greaterThanEqual
+     * @see lessThan
      */
     infix fun lessThanEqual(other: GDValue): ComparisonCreator =
         this.createCompareTrigger(other, ItemCompareComparisonType.LESS_THAN_EQUAL)

@@ -130,6 +130,15 @@ class ComparisonBranchesBuilder(val ctx: ObjectManager<SimpleObject>, comp: Comp
         this.comp
 }
 
+/**
+ * Creates a comparison between 2 [GDValues][dsltypes.values.GDValue]
+ * @param comp the comparison. It is created like this: `gdValue1 operator gdValue2`.
+ *             For example, to compare if the number of attempts is equal to `8`, you can do `attempts() equalsTo const(8)`
+ * @param builder the builder used to set the conditional branches of the comparison
+ * @return the created comparison
+ * @see dsltypes.values.GDValue
+ * @see Comparison
+ */
 fun ObjectManager<SimpleObject>.comp(comp: ComparisonCreator, builder: ComparisonBranchesBuilder.() -> Unit): Comparison {
     val compBuilder = ComparisonBranchesBuilder(this, comp)
     builder(compBuilder)
