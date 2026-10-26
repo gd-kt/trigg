@@ -75,7 +75,7 @@ class TriggProvider internal constructor(): ObjectManager<SimpleObject>, RawStri
     fun init(initGetter: MutableTriggInit.() -> Unit) {
         require(this._init == null) { "Cannot set twice the init block of a TriggProvider" }
 
-        val triggInit = MutableTriggInit()
+        val triggInit = MutableTriggInit(this)
         initGetter(triggInit)
 
         this._init = triggInit.toImmutable()
@@ -106,7 +106,7 @@ class TriggProvider internal constructor(): ObjectManager<SimpleObject>, RawStri
      * Spawns the group representing the [entrypoint][dsltypes.init.space.GroupSpace.entrypoint]
      */
     fun executeEntrypoint(delay: Float = 0f): SpawnTrigger =
-        this.spawn(this.init.groupSpace.entrypoint, delay).apply {
+        this.spawn(this.init.groupSpace.getEntrypoint(this), delay).apply {
             spawnTriggered.resetValue()
             multiTriggered.resetValue()
 
@@ -131,7 +131,7 @@ class TriggProvider internal constructor(): ObjectManager<SimpleObject>, RawStri
             callsInPlace(entrypointSpawner, InvocationKind.EXACTLY_ONCE)
         }
 
-        group(this.init.groupSpace.entrypoint.toUInt(), entrypointSpawner)
+        group(this.init.groupSpace.getEntrypoint(this).toUInt(), entrypointSpawner)
 
         if (execute)
             this.executeEntrypoint()

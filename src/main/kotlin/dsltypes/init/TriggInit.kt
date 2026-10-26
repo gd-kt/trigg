@@ -8,6 +8,7 @@ import dsltypes.init.space.LabelSpace
 import editor.objects.data.Pos
 import editor.objects.data.Position
 import editor.objects.propertycontainers.TriggerProperties
+import provider.TriggProvider
 
 @TriggDsl
 interface TriggInit {
@@ -33,6 +34,7 @@ interface TriggInit {
 }
 
 data class MutableTriggInit(
+    val triggProvider: TriggProvider,
     override var commonGroup: Group = TriggerProperties.MAX_GROUPS.group,
     override var basePos: Position = Pos.ZERO,
     override var labelSpace: LabelSpace = LabelSpace.DEFAULT,
@@ -40,7 +42,7 @@ data class MutableTriggInit(
     override var clearPreviousObjects: Boolean = false
 ) : TriggInit {
     fun toImmutable(): ImmutableTriggInit =
-        ImmutableTriggInit(this.commonGroup, this.basePos, this.labelSpace, this.groupSpace)
+        ImmutableTriggInit(this.commonGroup, this.basePos, this.labelSpace, this.groupSpace, this.clearPreviousObjects)
 }
 
 data class ImmutableTriggInit(
