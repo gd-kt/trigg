@@ -57,6 +57,23 @@ class TriggProvider internal constructor(): ObjectManager<SimpleObject>, RawStri
     val addedObjects: List<GenericGdObject>
         field: MutableList<GenericGdObject> = mutableListOf()
 
+    /**
+     * If this trigg instance has finished.
+     * If set to `true` it is no longer mutable
+     */
+    var isFinished: Boolean = false
+        internal set
+
+    /**
+     * If this trigg instance's [init] is locked
+     * and so, immutable.
+     *
+     * This gets set to `true` as soon as this
+     * gets mutated in any way
+     */
+    var lockedInit: Boolean = false
+        private set
+
     private var currentPos: Pos = Pos.gridCentered(-1f, 0f)
 
     private var _init: TriggInit? = null
@@ -74,11 +91,21 @@ class TriggProvider internal constructor(): ObjectManager<SimpleObject>, RawStri
     override fun asRawString(): String =
         RawStringFactory.joinRawStrings(this.addedObjects)
 
+    fun throwIfFinished() {
+        check(!this.isFinished) { "Cannot mutate this TriggProvider because it has finished executing !" }
+    }
+
+    private fun lockInit() {
+        this.lockedInit = true
+    }
+
     /**
      * Creates the initializer for this [TriggProvider]
      */
     fun init(initGetter: MutableTriggInit.() -> Unit) {
-        require(this._init == null) { "Cannot set twice the init block of a TriggProvider" }
+        this.throwIfFinished()
+        check(!this.lockedInit) { "Cannot initialize this trigg instance's properties after mutating the trigg instance" }
+        check(this._init == null) { "Cannot set twice the init block of a TriggProvider" }
 
         val triggInit = MutableTriggInit(this)
         initGetter(triggInit)
@@ -87,6 +114,7 @@ class TriggProvider internal constructor(): ObjectManager<SimpleObject>, RawStri
     }
 
     override fun <T: SimpleObject> add(obj: T): T {
+        this.throwIfFinished()
         this.addedObjects.add(obj)
         obj.groups.add(this.init.commonGroup.value)
 
@@ -94,6 +122,8 @@ class TriggProvider internal constructor(): ObjectManager<SimpleObject>, RawStri
     }
 
     override fun spawn(spawner: ObjectManager<SimpleObject>.() -> Unit, delay: Float): SpawnTrigger {
+        this.throwIfFinished()
+        this.lockInit()
         val acquiredGroup = this.acquireGroup()
 
         val collector = GroupAdder(this, acquiredGroup)
@@ -136,19 +166,39 @@ class TriggProvider internal constructor(): ObjectManager<SimpleObject>, RawStri
             callsInPlace(entrypointSpawner, InvocationKind.EXACTLY_ONCE)
         }
 
+        this.lockInit()
+        this.throwIfFinished()
         group(this.init.groupSpace.getEntrypoint(this).toUInt(), entrypointSpawner)
 
         if (execute)
             this.executeEntrypoint()
     }
 
+    /**
+     * Gets the pos to place a trigger.
+     * This is not needed but is more for not
+     * cluttering every objects around a single point.
+     *
+     * If this [TriggProvider] instance has [finished executing][isFinished]
+     * then only a copy of the next pos will be given. After this, no
+     * more pos can be acquired
+     * @return the pos where to place the next object
+     */
     override fun getNextPos(): Pos {
-        val posSnapshot = this.currentPos.copy()
-        this.currentPos += GridPos(0f, 1f)
-        return posSnapshot + this.init.basePos
+        if (this.isFinished) {
+            return this.currentPos + GridPos(0f, 1f)
+        } else {
+            this.lockInit()
+
+            val posSnapshot = this.currentPos.copy()
+            this.currentPos += GridPos(0f, 1f)
+            return posSnapshot + this.init.basePos
+        }
     }
 
     override fun acquireGroup(): UInt {
+        this.lockInit()
+        this.throwIfFinished()
         if (this.nextFreeGroup !in this.init.groupSpace.groupRange)
             throw IllegalStateException("Too many acquired groups. There are ${this.init.groupSpace.allocatedGroups} allocatable groups yet all of them were used")
 
@@ -159,6 +209,8 @@ class TriggProvider internal constructor(): ObjectManager<SimpleObject>, RawStri
     }
 
     override fun acquireLabel(): UInt {
+        this.lockInit()
+        this.throwIfFinished()
         if (this.nextFreeLabel !in this.init.labelSpace.scriptRange)
             throw IllegalStateException("Too many acquired labels. There are ${this.init.labelSpace.script} allocatable labels yet all of them were used")
 
@@ -186,6 +238,7 @@ fun trigg(triggBuilder: TriggProvider.() -> Unit): String {
 
     TriggProvider.INSTANCE = trigg
     triggBuilder(trigg)
+    trigg.isFinished = true
     TriggProvider.INSTANCE = null
 
     if (trigg.init.clearPreviousObjects)
