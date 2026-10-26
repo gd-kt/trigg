@@ -304,8 +304,6 @@ class FloatGDValue(value: Float): NumberGDValue<Float>(value) {
         }
 }
 
-// TODO: applyModifiers tests
-
 /**
  * Applies the modifiers of this [value][GDValue] to the given [value].
  * They are applied like this: `absNeg(roundingType(value))`, this is the order
