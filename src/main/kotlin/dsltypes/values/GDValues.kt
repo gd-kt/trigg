@@ -130,49 +130,6 @@ open class GDValue(
             Comparison(itemCompTrigger)
         }
 
-    // TODO: applyModifiers tests
-
-    /**
-     * Applies the modifiers of this [value][GDValue] to the given [value].
-     * To learn more about modifiers, read [GDValue]'s KDoc
-     */
-    fun applyModifiers(value: Int): Int {
-        return when (this.absNegType) {
-            ItemTriggerAbsNeg.ABS -> abs(value)
-            ItemTriggerAbsNeg.NEGATIVE -> -value
-            else -> value
-        }
-    }
-
-    /**
-     * Applies the modifiers of this [value][GDValue] to the given [value].
-     * To learn more about modifiers, read [GDValue]'s KDoc
-     */
-    fun applyModifiers(value: Double): Double {
-        var res = value
-        when (this.roundingType) {
-            ItemTriggerRoundingType.ROUND -> res = round(res)
-            ItemTriggerRoundingType.FLOOR -> res = floor(res)
-            ItemTriggerRoundingType.CEIL -> res = round(res)
-            else -> {}
-        }
-
-        when (this.absNegType) {
-            ItemTriggerAbsNeg.ABS -> res = abs(res)
-            ItemTriggerAbsNeg.NEGATIVE -> res = -res
-            else -> {}
-        }
-
-        return res
-    }
-
-    /**
-     * Applies the modifiers of this [value][GDValue] to the given [value].
-     * To learn more about modifiers, read [GDValue]'s KDoc
-     */
-    fun applyModifiers(value: Float): Float =
-        this.applyModifiers(value.toDouble()).toFloat()
-
     /**
      * Operator `==`
      * @see notEqualTo
@@ -345,6 +302,49 @@ class FloatGDValue(value: Float): NumberGDValue<Float>(value) {
             roundingType = this.roundingType
         }
 }
+
+// TODO: applyModifiers tests
+
+/**
+ * Applies the modifiers of this [value][GDValue] to the given [value].
+ * To learn more about modifiers, read [GDValue]'s KDoc
+ */
+fun GDValue.applyModifiers(value: Int): Int {
+    return when (this.absNegType) {
+        ItemTriggerAbsNeg.ABS -> abs(value)
+        ItemTriggerAbsNeg.NEGATIVE -> -value
+        else -> value
+    }
+}
+
+/**
+ * Applies the modifiers of this [value][GDValue] to the given [value].
+ * To learn more about modifiers, read [GDValue]'s KDoc
+ */
+fun GDValue.applyModifiers(value: Double): Double {
+    var res = value
+    when (this.roundingType) {
+        ItemTriggerRoundingType.ROUND -> res = round(res)
+        ItemTriggerRoundingType.FLOOR -> res = floor(res)
+        ItemTriggerRoundingType.CEIL -> res = round(res)
+        else -> {}
+    }
+
+    when (this.absNegType) {
+        ItemTriggerAbsNeg.ABS -> res = abs(res)
+        ItemTriggerAbsNeg.NEGATIVE -> res = -res
+        else -> {}
+    }
+
+    return res
+}
+
+/**
+ * Applies the modifiers of this [value][GDValue] to the given [value].
+ * To learn more about modifiers, read [GDValue]'s KDoc
+ */
+fun GDValue.applyModifiers(value: Float): Float =
+    this.applyModifiers(value.toDouble()).toFloat()
 
 /**
  * Applies the modifiers of this [value][GDValue] to the given [value].
