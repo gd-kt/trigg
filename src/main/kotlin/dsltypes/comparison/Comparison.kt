@@ -70,7 +70,7 @@ class Comparison internal constructor(
             context.add(compTrigger)
     }
 
-    fun then(thenClause: ConditionalBranch, groupID: UInt): Comparison {
+    fun then(thenClause: ConditionalBranch, groupAcquirer: () -> UInt): Comparison {
         check(this.thenClause == null) {
             "Cannot set a 'then conditional branch' twice !"
         }
@@ -79,17 +79,19 @@ class Comparison internal constructor(
             "Cannot set an 'then conditional branch' after an 'else' one !"
         }
 
-        this.obj.succeededSpawnID.value = groupID
+        if (this.inlinedBranch == null)
+            this.obj.succeededSpawnID.value = groupAcquirer()
         this.thenClause = thenClause
         return this
     }
 
-    fun fail(elseClause: ConditionalBranch, groupID: UInt): Comparison {
+    fun fail(elseClause: ConditionalBranch, groupAcquirer: () -> UInt): Comparison {
         check(this.elseClause == null) {
             "Cannot set a 'else conditional branch' twice !"
         }
 
-        this.obj.failedSpawnID.value = groupID
+        if (this.inlinedBranch == null)
+            this.obj.failedSpawnID.value = groupAcquirer()
         this.elseClause = elseClause
         return this
     }
