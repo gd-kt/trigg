@@ -83,8 +83,6 @@ class GroupAdder(
         this.context.acquireLabel()
 }
 
-// TODO: Tests for all "group" functions
-
 /**
  * Creates a [GroupAdder] to create objects at "compile time" with a given group.
  * If there are spawn branches, these won't get assigned the given [group], only
@@ -112,7 +110,8 @@ inline fun ObjectManager<SimpleObject>.group(group: UInt, groupAdder: GroupAdder
  * @see ObjectManager.group
  * @see onlyGroup
  */
-@OptIn(ExperimentalUnsignedTypes::class, ExperimentalContracts::class)
+@OptIn(ExperimentalContracts::class)
+@ExperimentalUnsignedTypes
 fun ObjectManager<SimpleObject>.groups(vararg groups: UInt, groupAdder: GroupAdder.() -> Unit): GroupAdder {
     contract {
         callsInPlace(groupAdder, InvocationKind.EXACTLY_ONCE)
@@ -121,6 +120,8 @@ fun ObjectManager<SimpleObject>.groups(vararg groups: UInt, groupAdder: GroupAdd
     val myGroupAdder = GroupAdder(this, groups.first()).apply(groupAdder)
 
     myGroupAdder.collectedObjects.forEach { obj ->
+        // This checks prevents objects coming from
+        // spawn branches to get the given groups
         if (obj.groups.getOrThrow().contains(groups.first()))
             obj.groups.getOrCreateCollection().addAll(groups)
     }
@@ -143,21 +144,13 @@ private const val ONLY_GROUP_TEMP_GROUP: UInt = UInt.MAX_VALUE
  * @see onlyGroups
  * @see ObjectManager.group
  */
-@OptIn(ExperimentalContracts::class)
+@OptIn(ExperimentalContracts::class, ExperimentalUnsignedTypes::class)
 fun onlyGroup(group: UInt, groupAdder: GroupAdder.() -> Unit): GroupAdder {
     contract {
         callsInPlace(groupAdder, InvocationKind.EXACTLY_ONCE)
     }
 
-    val myGroupAdder = GroupAdder(TriggProvider.getInstance(), ONLY_GROUP_TEMP_GROUP).apply(groupAdder)
-    myGroupAdder.collectedObjects.forEach {
-        if (it.groups.getOrThrow().contains(ONLY_GROUP_TEMP_GROUP)) {
-            it.groups.remove(ONLY_GROUP_TEMP_GROUP)
-            it.groups.add(group)
-        }
-    }
-
-    return myGroupAdder
+    return onlyGroups(group, groupAdder = groupAdder)
 }
 
 /**
@@ -173,14 +166,17 @@ fun onlyGroup(group: UInt, groupAdder: GroupAdder.() -> Unit): GroupAdder {
  * @see onlyGroup
  * @see ObjectManager.group
  */
-@OptIn(ExperimentalUnsignedTypes::class, ExperimentalContracts::class)
+@OptIn(ExperimentalContracts::class)
+@ExperimentalUnsignedTypes
 fun onlyGroups(vararg groups: UInt, groupAdder: GroupAdder.() -> Unit): GroupAdder {
     contract {
         callsInPlace(groupAdder, InvocationKind.EXACTLY_ONCE)
     }
 
-    val myGroupAdder = GroupAdder(TriggProvider.getInstance(), 0u).apply(groupAdder)
+    val myGroupAdder = GroupAdder(TriggProvider.getInstance(), ONLY_GROUP_TEMP_GROUP).apply(groupAdder)
     myGroupAdder.collectedObjects.forEach {
+        // This checks prevents objects coming from
+        // spawn branches to get the given groups
         if (it.groups.getOrThrow().contains(ONLY_GROUP_TEMP_GROUP)) {
             it.groups.remove(ONLY_GROUP_TEMP_GROUP)
             it.groups.getOrCreateCollection().addAll(groups)
