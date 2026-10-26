@@ -296,6 +296,16 @@ class FloatGDValue(value: Float): NumberGDValue<Float>(value) {
         }
 }
 
+fun ItemCompareComparisonType.getComparison(value: GDValue, other: GDValue): ComparisonCreator =
+    when (this) {
+        ItemCompareComparisonType.EQUAL -> value.equalsTo(other)
+        ItemCompareComparisonType.GREATER_THAN -> value.greaterThan(other)
+        ItemCompareComparisonType.GREATER_THAN_EQUAL -> value.greaterThanEqual(other)
+        ItemCompareComparisonType.LESS_THAN -> value.lessThan(other)
+        ItemCompareComparisonType.LESS_THAN_EQUAL -> value.lessThanEqual(other)
+        ItemCompareComparisonType.NOT_EQUAL -> value.notEqualTo(other)
+    }
+
 /**
  * Applies the modifiers of this [value][GDValue] to the given [value].
  * They are applied like this: `absNeg(roundingType(value))`, this is the order
