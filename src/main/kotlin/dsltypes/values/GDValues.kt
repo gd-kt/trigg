@@ -2,6 +2,8 @@ package dsltypes.values
 
 import dsltypes.comparison.Comparison
 import editor.objects.SimpleObject
+import editor.objects.data.GridPos
+import editor.objects.data.Position
 import editor.objects.triggers.counters.*
 import provider.GroupHandler
 import provider.ObjectManager
@@ -12,6 +14,17 @@ import kotlin.math.floor
 import kotlin.math.round
 
 typealias ComparisonCreator = ObjectManager<SimpleObject>.() -> Comparison
+
+interface ValueWithCounter {
+    /**
+     * Creates a [CounterLabel][CounterLabelTrigger] of this [GDValue]
+     * @param ctx the context in which to place the object
+     * @param pos the pos where to create the object
+     * @return the created [CounterLabel][CounterLabelTrigger]
+     */
+    context(ctx: ObjectManager<in SimpleObject>)
+    fun createCounter(pos: Position = ctx.getNextPos() + GridPos(5f, 0f)): CounterLabelTrigger
+}
 
 /**
  * A value understandable by geometry dash.
@@ -241,7 +254,7 @@ abstract class NumberGDValue<N : Number>(val value: N, type: ItemTriggerTermType
     }
 }
 
-abstract class WithIdGDValue(val itemID: UInt? = null, type: ItemTriggerTermType) : GDValue(type = type) {
+abstract class WithIdGDValue(val itemID: UInt? = null, type: ItemTriggerTermType) : GDValue(type = type), ValueWithCounter {
     private var acquiredItemID: UInt? = null
 
     /**
@@ -420,11 +433,51 @@ fun GDValue.resetModifiers() {
     this.absNegType = ItemTriggerAbsNeg.NONE
 }
 
-class ItemGDValue(itemID: UInt? = null) : WithIdGDValue(itemID, type = ItemTriggerTermType.ITEM)
-class TimerGDValue(timerID: UInt) : WithIdGDValue(timerID, type = ItemTriggerTermType.TIMER)
-class PointsGDValue : GDValue(type = ItemTriggerTermType.POINTS)
-class GameTimeGDValue : GDValue(type = ItemTriggerTermType.TIME)
-class AttemptGDValue : GDValue(type = ItemTriggerTermType.ATTEMPTS)
+class ItemGDValue(itemID: UInt? = null) : WithIdGDValue(itemID, type = ItemTriggerTermType.ITEM) {
+    context(ctx: ObjectManager<in SimpleObject>)
+    override fun createCounter(pos: Position): CounterLabelTrigger =
+        ctx.add { CounterLabelTrigger(pos, this.getItemID(ctx)) }
+}
+
+class TimerGDValue(timerID: UInt) : WithIdGDValue(timerID, type = ItemTriggerTermType.TIMER) {
+    context(ctx: ObjectManager<in SimpleObject>)
+    override fun createCounter(pos: Position): CounterLabelTrigger =
+        ctx.add {
+            CounterLabelTrigger(pos, this.getItemID(ctx)).apply {
+                timeCounter.value = true
+            }
+        }
+}
+
+class PointsGDValue : GDValue(type = ItemTriggerTermType.POINTS), ValueWithCounter {
+    context(ctx: ObjectManager<in SimpleObject>)
+    override fun createCounter(pos: Position): CounterLabelTrigger =
+        ctx.add {
+            CounterLabelTrigger(pos).apply {
+                labelType.value = LabelType.POINTS
+            }
+        }
+}
+
+class GameTimeGDValue : GDValue(type = ItemTriggerTermType.TIME), ValueWithCounter {
+    context(ctx: ObjectManager<in SimpleObject>)
+    override fun createCounter(pos: Position): CounterLabelTrigger =
+        ctx.add {
+            CounterLabelTrigger(pos).apply {
+                labelType.value = LabelType.MAIN_TIME
+            }
+        }
+}
+
+class AttemptGDValue : GDValue(type = ItemTriggerTermType.ATTEMPTS), ValueWithCounter {
+    context(ctx: ObjectManager<in SimpleObject>)
+    override fun createCounter(pos: Position): CounterLabelTrigger =
+        ctx.add {
+            CounterLabelTrigger(pos).apply {
+                labelType.value = LabelType.ATTEMPTS
+            }
+        }
+}
 
 /**
  * Creates an [ItemGDValue] with an optional itemID

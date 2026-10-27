@@ -3,9 +3,12 @@ package dsltypes.values
 import editor.objects.triggers.counters.ItemTriggerAbsNeg
 import editor.objects.triggers.counters.ItemTriggerRoundingType
 import editor.objects.triggers.counters.ItemTriggerTermType
+import editor.objects.triggers.counters.LabelType
+import editor.rawstring.property.getOrThrow
 import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Test
+import provider.TriggProvider
 import kotlin.math.abs
 import kotlin.math.ceil
 import kotlin.math.floor
@@ -141,5 +144,51 @@ private class GDValuesTests {
 
         Assertions.assertEquals(7.5f, value.value)
         Assertions.assertNotSame(value, value2)
+    }
+
+    @Test
+    @DisplayName("Label creation tests")
+    fun labelTests() {
+        val ctx = TriggProvider()
+
+        ctx.apply {
+            val itemValue = item(17u)
+            val itemCounter = itemValue.createCounter()
+            Assertions.assertEquals(itemValue.itemID, itemCounter.itemID.value)
+            Assertions.assertEquals(LabelType.UNSET, itemCounter.labelType.value)
+            Assertions.assertFalse(itemCounter.timeCounter.getOrThrow())
+            Assertions.assertFalse(itemCounter.secondsOnly.getOrThrow())
+
+
+            val timerValue = timer(17u)
+            val timerCounter = timerValue.createCounter()
+            Assertions.assertEquals(timerValue.itemID, timerCounter.itemID.value)
+            Assertions.assertEquals(LabelType.UNSET, timerCounter.labelType.value)
+            Assertions.assertTrue(timerCounter.timeCounter.getOrThrow())
+
+
+            val mainTimeValue = gameTime()
+            val mainTimeCounter = mainTimeValue.createCounter()
+            Assertions.assertTrue(mainTimeCounter.itemID.isDefaultValue())
+            Assertions.assertEquals(LabelType.MAIN_TIME, mainTimeCounter.labelType.value)
+            Assertions.assertFalse(mainTimeCounter.timeCounter.getOrThrow())
+            Assertions.assertFalse(mainTimeCounter.secondsOnly.getOrThrow())
+
+
+            val attemptsValue = attempts()
+            val attemptsCounter = attemptsValue.createCounter()
+            Assertions.assertTrue(attemptsCounter.itemID.isDefaultValue())
+            Assertions.assertEquals(LabelType.ATTEMPTS, attemptsCounter.labelType.value)
+            Assertions.assertFalse(attemptsCounter.timeCounter.getOrThrow())
+            Assertions.assertFalse(attemptsCounter.secondsOnly.getOrThrow())
+
+
+            val pointsValue = points()
+            val pointsCounter = pointsValue.createCounter()
+            Assertions.assertTrue(pointsCounter.itemID.isDefaultValue())
+            Assertions.assertEquals(LabelType.POINTS, pointsCounter.labelType.value)
+            Assertions.assertFalse(pointsCounter.timeCounter.getOrThrow())
+            Assertions.assertFalse(pointsCounter.secondsOnly.getOrThrow())
+        }
     }
 }
