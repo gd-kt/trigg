@@ -5,6 +5,7 @@ import editor.objects.SimpleObject
 import editor.objects.triggers.counters.*
 import provider.GroupHandler
 import provider.ObjectManager
+import java.util.Objects
 import kotlin.math.abs
 import kotlin.math.ceil
 import kotlin.math.floor
@@ -188,6 +189,20 @@ open class GDValue(
      */
     infix fun lessThanEqual(other: GDValue): ComparisonCreator =
         this.createCompareTrigger(other, ItemCompareComparisonType.LESS_THAN_EQUAL)
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other !is GDValue) return false
+
+        if (this.roundingType != other.roundingType) return false
+        if (this.absNegType != other.absNegType) return false
+        if (this.type != other.type) return false
+
+        return true
+    }
+
+    override fun hashCode(): Int =
+        Objects.hash(this.roundingType, this.absNegType, this.type)
 }
 
 abstract class NumberGDValue<N : Number>(val value: N, type: ItemTriggerTermType = ItemTriggerTermType.UNSET) : GDValue(type = type) {
@@ -208,6 +223,22 @@ abstract class NumberGDValue<N : Number>(val value: N, type: ItemTriggerTermType
             val doubleValue = this.value.toDouble()
             return this.numberToN(this.applyModifiers(doubleValue))
         }
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other !is NumberGDValue<*>) return false
+        if (!super.equals(other)) return false
+
+        if (this.value != other.value) return false
+
+        return true
+    }
+
+    override fun hashCode(): Int {
+        var result = super.hashCode()
+        result = 31 * result + this.value.hashCode()
+        return result
+    }
 }
 
 abstract class WithIdGDValue(val itemID: UInt? = null, type: ItemTriggerTermType) : GDValue(type = type) {
@@ -260,8 +291,24 @@ abstract class WithIdGDValue(val itemID: UInt? = null, type: ItemTriggerTermType
     /**
      * Sets the value of this [GDValue][WithIdGDValue] when this executes.
      */
-    fun setValue(ctx: ObjectManager<in SimpleObject>, value: UInt) =
+    fun setValue(ctx: ObjectManager<in SimpleObject>, value: UInt) = // TODO: Test
         this.setValue(ctx, value.toInt())
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other !is WithIdGDValue) return false
+        if (!super.equals(other)) return false
+
+        if (this.itemID != other.itemID || this.acquiredItemID != other.acquiredItemID) return false
+
+        return true
+    }
+
+    override fun hashCode(): Int {
+        var result = super.hashCode()
+        result = 31 * result + this.itemID.hashCode()
+        return result
+    }
 }
 
 context(ctx: ObjectManager<in SimpleObject>)
