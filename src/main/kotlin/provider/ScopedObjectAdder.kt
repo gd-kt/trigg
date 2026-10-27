@@ -44,6 +44,11 @@ interface ScopedObjectAdder<Obj : GenericGdObject> {
     fun add(objs: Iterable<Obj>) =
         objs.forEach(::add)
 
+    // TODO: spawn(group, lambda)
+    // TODO: spawnFunction(lambda -> constant spawned group for this lambda) + defineFunction(@TriggFunction lambda)
+    // @TriggFunction(group = ...)
+    // + maybe asFunction() to be able to respawn something -> throws an exception in TriggProvider
+
     /**
      * Spawns a lambda after a given delay (which is `>=0`)
      * @param spawner what to spawn
