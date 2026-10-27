@@ -5,8 +5,6 @@ import editor.objects.triggers.counters.PersistentTrigger
 import generator.addToRoot
 import provider.ObjectManager
 
-// TODO: Test
-
 /**
  * Sets a [GDValue][WithIdGDValue] containing an itemID or a timerID to be persistent
  * @param gdValue the value to set as persistent
@@ -36,7 +34,7 @@ fun <Val : WithIdGDValue> ObjectManager<SimpleObject>.persistent(gdValue: Val, f
  * @param flag the behavior used to set the given [GDValue][WithIdGDValue] as persistent
  * @return the given [GDValue][WithIdGDValue]
  */
-inline fun <Val : WithIdGDValue> ObjectManager<SimpleObject>.persistent(gdValueGetter: () -> Val, flag: PersistentType = PersistentType.ON_LEVEL_START): Val =
+inline fun <Val : WithIdGDValue> ObjectManager<SimpleObject>.persistent(flag: PersistentType = PersistentType.ON_LEVEL_START, gdValueGetter: () -> Val): Val =
     this.persistent(gdValueGetter(), flag)
 
 enum class PersistentType {
