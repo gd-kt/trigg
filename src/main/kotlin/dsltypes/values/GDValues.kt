@@ -258,13 +258,6 @@ abstract class WithIdGDValue(val itemID: UInt? = null, type: ItemTriggerTermType
     private var acquiredItemID: UInt? = null
 
     /**
-     * The last known value manually set **known** by trigg.
-     * This doesn't mean that this reflects the true value in **ANY WAY**
-     */
-    var lastKnownValue: Int? = null
-        private set
-
-    /**
      * Gets the itemID of this [GDValue][WithIdGDValue].
      *
      * If its [itemID] is equal to `null` then
@@ -280,32 +273,6 @@ abstract class WithIdGDValue(val itemID: UInt? = null, type: ItemTriggerTermType
 
         return this.acquiredItemID!!
     }
-
-    /**
-     * Sets the value of this [GDValue][WithIdGDValue] when this executes.
-     * The modifiers applied to this [GDValue][WithIdGDValue] will
-     * be applied to the given [value]
-     * @param value The value is converted into a [Float]. But no matter
-     * what geometry dash will turn the result into an [Int]
-     */
-    fun setValue(ctx: ObjectManager<in SimpleObject>, value: Number): ItemEditTrigger {
-        this.lastKnownValue = value.toInt()
-        return ctx.add {
-            ItemEditTrigger(ctx.getNextPos()).apply {
-                resultItemID.value = this@WithIdGDValue.getItemID(ctx)
-                secondTermFactor.value = value.toFloat()
-
-                secondTermAbsNeg.value = this@WithIdGDValue.absNegType
-                secondTermRoundingType.value = this@WithIdGDValue.roundingType
-            }
-        }
-    }
-
-    /**
-     * Sets the value of this [GDValue][WithIdGDValue] when this executes.
-     */
-    fun setValue(ctx: ObjectManager<in SimpleObject>, value: UInt) = // TODO: Test
-        this.setValue(ctx, value.toInt())
 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
@@ -323,14 +290,6 @@ abstract class WithIdGDValue(val itemID: UInt? = null, type: ItemTriggerTermType
         return result
     }
 }
-
-context(ctx: ObjectManager<in SimpleObject>)
-fun WithIdGDValue.setValue(value: Number) =
-    this.setValue(ctx, value)
-
-context(ctx: ObjectManager<in SimpleObject>)
-fun WithIdGDValue.setValue(value: UInt) =
-    this.setValue(ctx, value)
 
 class IntGDValue(value: Int): NumberGDValue<Int>(value) {
     override fun numberToN(numInput: Number): Int = numInput.toInt()
@@ -434,9 +393,47 @@ fun GDValue.resetModifiers() {
 }
 
 class ItemGDValue(itemID: UInt? = null) : WithIdGDValue(itemID, type = ItemTriggerTermType.ITEM) {
+    /**
+     * The last known value manually set **known** by trigg.
+     * This doesn't mean that this reflects the true value in **ANY WAY**
+     */
+    var lastKnownValue: Int? = null
+        private set
+
     context(ctx: ObjectManager<in SimpleObject>)
     override fun createCounter(pos: Position): CounterLabelTrigger =
         ctx.add { CounterLabelTrigger(pos, this.getItemID(ctx)) }
+
+    /**
+     * Sets the value of this [GDValue][WithIdGDValue] when this executes.
+     * The modifiers applied to this [GDValue][WithIdGDValue] will
+     * be applied to the given [value]
+     * @param value The value to set this value to.
+     *              It is converted into a [Float].
+     *              But no matter what geometry dash will floor the result into an [Int] unless
+     *              the [roundingType] is changed
+     */
+    fun setValue(ctx: ObjectManager<in SimpleObject>, value: Number): ItemEditTrigger {
+        this.lastKnownValue = value.toInt()
+        return ctx.add {
+            ItemEditTrigger(ctx.getNextPos()).apply {
+                resultItemID.value = this@ItemGDValue.getItemID(ctx)
+                secondTermFactor.value = value.toFloat()
+
+                firstTermAbsNeg.value = this@ItemGDValue.absNegType
+                firstTermRoundingType.value = this@ItemGDValue.roundingType
+            }
+        }
+    }
+
+    /**
+     * Sets the value of this [GDValue][WithIdGDValue] when this executes.
+     * The modifiers applied to this [GDValue][WithIdGDValue] will
+     * be applied to the given [value]
+     * @param value The value to set this value to
+     */
+    fun setValue(ctx: ObjectManager<in SimpleObject>, value: UInt) =
+        this.setValue(ctx, value.toInt())
 }
 
 class TimerGDValue(timerID: UInt) : WithIdGDValue(timerID, type = ItemTriggerTermType.TIMER) {
@@ -478,6 +475,20 @@ class AttemptGDValue : GDValue(type = ItemTriggerTermType.ATTEMPTS), ValueWithCo
             }
         }
 }
+
+/**
+ * See [ItemGDValue.setValue] for more info
+ */
+context(ctx: ObjectManager<in SimpleObject>)
+fun ItemGDValue.setValue(value: Number) =
+    this.setValue(ctx, value)
+
+/**
+ * See [ItemGDValue.setValue] for more info
+ */
+context(ctx: ObjectManager<in SimpleObject>)
+fun ItemGDValue.setValue(value: UInt) =
+    this.setValue(ctx, value)
 
 /**
  * Creates an [ItemGDValue] with an optional itemID
