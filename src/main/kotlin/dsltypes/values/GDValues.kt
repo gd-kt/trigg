@@ -575,28 +575,28 @@ fun constFloat(value: Number) =
     FloatGDValue(value.toFloat())
 
 
-fun negative(gdValue: GDValue): GDValue =
+fun <Val : GDValue> negative(gdValue: Val): Val =
     gdValue.apply {
         absNegType = ItemTriggerAbsNeg.NEGATIVE
     }
 
-fun abs(gdValue: GDValue): GDValue =
+fun <Val : GDValue> abs(gdValue: Val): Val =
     gdValue.apply {
         absNegType = ItemTriggerAbsNeg.ABS
     }
 
 
-fun round(gdValue: GDValue): GDValue =
+fun <Val : GDValue> round(gdValue: Val): Val =
     gdValue.apply {
         roundingType = ItemTriggerRoundingType.ROUND
     }
 
-fun floor(gdValue: GDValue): GDValue =
+fun <Val : GDValue> floor(gdValue: Val): Val =
     gdValue.apply {
         roundingType = ItemTriggerRoundingType.FLOOR
     }
 
-fun ceil(gdValue: GDValue): GDValue =
+fun <Val : GDValue> ceil(gdValue: Val): Val =
     gdValue.apply {
         roundingType = ItemTriggerRoundingType.CEIL
     }
