@@ -68,7 +68,7 @@ private class TriggProviderTests {
         ctx2.isFinished = true
 
         toTest.forEachIndexed { index, lambda ->
-            println("Testing index $index")
+            println("[TriggProviderTests.isFinishedTest] Testing index $index")
             Assertions.assertThrows(IllegalStateException::class.java) {
                 lambda(ctx2)
             }
