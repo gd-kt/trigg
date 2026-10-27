@@ -2,8 +2,7 @@ package dsltypes.values
 
 import editor.objects.SimpleObject
 import editor.objects.triggers.counters.PersistentTrigger
-import editor.rawstring.property.NULL_GROUP
-import generator.onlyGroup
+import generator.addToRoot
 import provider.ObjectManager
 
 // TODO: Test
@@ -16,7 +15,7 @@ import provider.ObjectManager
  */
 fun <Val : WithIdGDValue> ObjectManager<SimpleObject>.persistent(gdValue: Val, flag: PersistentType = PersistentType.ON_LEVEL_START): Val {
     if (flag == PersistentType.ON_LEVEL_START) {
-        onlyGroup(NULL_GROUP) {
+        addToRoot {
             this.add {
                 PersistentTrigger(this.getNextPos().copy(x = 0f), gdValue.getItemID(this), true)
             }

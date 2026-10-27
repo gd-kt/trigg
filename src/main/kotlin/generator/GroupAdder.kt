@@ -5,6 +5,7 @@ import editor.objects.data.Pos
 import editor.objects.triggers.TriggerObject
 import editor.objects.triggers.misc.SpawnTrigger
 import editor.objects.triggers.setSpawned
+import editor.rawstring.property.NULL_GROUP
 import editor.rawstring.property.getOrThrow
 import provider.ObjectManager
 import provider.TriggProvider
@@ -112,6 +113,7 @@ inline fun ObjectManager<SimpleObject>.group(group: UInt, groupAdder: GroupAdder
  * the root objects will.
  * @param groups the groups to add to all the collected objects
  * @param groupAdder the lambda used to collected all the objects
+ * @return the [GroupAdder] used to collect the objects
  * @see ObjectManager.group
  * @see onlyGroup
  */
@@ -146,6 +148,7 @@ private const val ONLY_GROUP_TEMP_GROUP: UInt = UInt.MAX_VALUE
  * be useful
  * @param group the group to add to all the collected objects
  * @param groupAdder the lambda used to collected all the objects
+ * @return the [GroupAdder] used to collect the objects
  * @see onlyGroups
  * @see ObjectManager.group
  */
@@ -159,6 +162,15 @@ fun onlyGroup(group: UInt, groupAdder: GroupAdder.() -> Unit): GroupAdder {
 }
 
 /**
+ * Adds every object collected in the given [groupAdder] to
+ * the root [TriggProvider] instance
+ * @param groupAdder the lambda used to collected all the objects
+ * @return the [GroupAdder] used to collect the objects
+ */
+fun addToRoot(groupAdder: GroupAdder.() -> Unit): GroupAdder =
+    onlyGroup(NULL_GROUP, groupAdder)
+
+/**
  * Creates a [GroupAdder] to create objects at "compile time" with a given [group].
  * If there are spawn branches, these won't get assigned the given [group], only
  * the root objects will.
@@ -168,6 +180,7 @@ fun onlyGroup(group: UInt, groupAdder: GroupAdder.() -> Unit): GroupAdder {
  * be useful
  * @param groups the groups to add to all the collected objects
  * @param groupAdder the lambda used to collected all the objects
+ * @return the [GroupAdder] used to collect the objects
  * @see onlyGroup
  * @see ObjectManager.group
  */
