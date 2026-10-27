@@ -1,5 +1,6 @@
 package dsltypes.values
 
+import editor.objects.triggers.counters.ItemEditTrigger
 import editor.objects.triggers.counters.ItemTriggerAbsNeg
 import editor.objects.triggers.counters.ItemTriggerRoundingType
 import editor.objects.triggers.counters.ItemTriggerTermType
@@ -190,5 +191,23 @@ private class GDValuesTests {
             Assertions.assertFalse(pointsCounter.timeCounter.getOrThrow())
             Assertions.assertFalse(pointsCounter.secondsOnly.getOrThrow())
         }
+    }
+
+    @Test
+    fun setValueTest() {
+        val ctx = TriggProvider()
+
+        val value = negative(round(item()))
+
+        val itemEditTrigger: ItemEditTrigger
+        ctx.apply {
+            itemEditTrigger = value.setValue(6.5f)
+        }
+
+        Assertions.assertEquals(6.5f, itemEditTrigger.secondTermFactor.getOrThrow())
+        Assertions.assertEquals(value.getItemID(ctx), itemEditTrigger.resultItemID.getOrThrow())
+        Assertions.assertEquals(value.roundingType, itemEditTrigger.firstTermRoundingType.getOrThrow())
+        Assertions.assertEquals(value.absNegType, itemEditTrigger.firstTermAbsNeg.getOrThrow())
+        Assertions.assertEquals(1, ctx.addedObjects.size)
     }
 }
