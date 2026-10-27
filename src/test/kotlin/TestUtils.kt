@@ -1,7 +1,7 @@
 import Group.Companion.group
 import dsltypes.init.MutableTriggInit
 import dsltypes.init.space.GroupSpace
-import dsltypes.init.space.MutableGroupSpace
+import dsltypes.init.space.groupSpace
 import editor.objects.propertycontainers.TriggerProperties
 import provider.TriggProvider
 
@@ -9,18 +9,27 @@ import provider.TriggProvider
  * Inits the trigg providers' init thingies, but sets the entrypoint to `9998`
  * @see TriggProvider.init
  */
-internal fun TriggProvider.testsInit(initGetter: MutableTriggInit.() -> Unit) {
-    this.init {
-        initGetter()
+internal fun TriggProvider.oldEntrypointInit(initGetter: MutableTriggInit.() -> Unit = {}) {
+    val triggInit = MutableTriggInit(this)
+    initGetter(triggInit)
 
-        val groupSpace = this.groupSpace
-        if (groupSpace is MutableGroupSpace && groupSpace.entrypoint == GroupSpace.DEFAULT.entrypoint)
-            groupSpace.entrypoint = (TriggerProperties.MAX_GROUPS - 1u).group
+    this.init {
+        groupSpace {
+            if (triggInit.groupSpace.entrypoint == GroupSpace.DEFAULT.entrypoint)
+                entrypoint = (TriggerProperties.MAX_GROUPS - 1u).group
+
+//            baseOffset = triggInit.groupSpace.baseOffset
+//            allocatedGroups = triggInit.groupSpace.allocatedGroups
+            groupRange = triggInit.groupSpace.groupRange
+        }
+
+        commonGroup = triggInit.commonGroup
+        labelSpace = triggInit.labelSpace
     }
 }
 
 @Suppress("TestFunctionName")
-fun TestTriggProvider(initGetter: MutableTriggInit.() -> Unit = {}): TriggProvider =
+internal fun OldEntrypointTriggProvider(): TriggProvider =
     TriggProvider().apply {
-        testsInit(initGetter)
+        oldEntrypointInit()
     }

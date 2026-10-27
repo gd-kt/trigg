@@ -1,12 +1,7 @@
 package dsltypes.comparison
 
-import TestTriggProvider
-import dsltypes.values.ComparisonCreator
-import dsltypes.values.attempts
-import dsltypes.values.const
-import dsltypes.values.constFloat
-import dsltypes.values.getComparison
-import dsltypes.values.item
+import OldEntrypointTriggProvider
+import dsltypes.values.*
 import editor.objects.SimpleObject
 import editor.objects.data.Pos
 import editor.objects.triggers.counters.ItemCompareComparisonType
@@ -22,7 +17,6 @@ import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.Test
 import provider.TriggProvider
-import testsInit
 import java.awt.Color
 import kotlin.random.Random
 import kotlin.random.nextUInt
@@ -72,7 +66,7 @@ private class CompBranchesBuilderTests {
 
     @Test
     fun thenBranchTest() {
-        val ctx = TestTriggProvider()
+        val ctx = OldEntrypointTriggProvider()
 
         TriggProvider.INSTANCE = ctx
         val compNoInline = ctx.comp(attempts() greaterThanEqual const(15)) {
@@ -104,7 +98,7 @@ private class CompBranchesBuilderTests {
 
     @Test
     fun inlinedThenBranchTest() {
-        val ctx = TestTriggProvider()
+        val ctx = OldEntrypointTriggProvider()
 
         TriggProvider.INSTANCE = ctx
         val compInline: Comparison
@@ -139,9 +133,7 @@ private class CompBranchesBuilderTests {
 
     @Test
     fun elseBranchTest() {
-        val ctx = TriggProvider().apply {
-            testsInit {  }
-        }
+        val ctx = OldEntrypointTriggProvider()
 
         TriggProvider.INSTANCE = ctx
         val compNoInline = ctx.comp(attempts() greaterThanEqual const(15)) {
@@ -169,10 +161,7 @@ private class CompBranchesBuilderTests {
 
     @Test
     fun inlineElseBranchTest() {
-        val ctx = TriggProvider().apply {
-            testsInit {  }
-        }
-
+        val ctx = OldEntrypointTriggProvider()
         TriggProvider.INSTANCE = ctx
         val compInline = ctx.comp(const(12) greaterThanEqual const(15)) {
             then {
@@ -199,9 +188,7 @@ private class CompBranchesBuilderTests {
 
     @Test
     fun elseifBranchTest() {
-        val ctx = TriggProvider().apply {
-            testsInit {  }
-        }
+        val ctx = OldEntrypointTriggProvider()
 
         TriggProvider.INSTANCE = ctx
         val compNoInline = ctx.comp(attempts() greaterThanEqual const(15)) {
