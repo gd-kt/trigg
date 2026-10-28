@@ -2,6 +2,7 @@ package generator
 
 import Group.Companion.group
 import dsltypes.init.TriggInit
+import dsltypes.init.space.labelSpace
 import editor.objects.SimpleObject
 import editor.objects.data.Pos
 import editor.objects.triggers.misc.SpawnTrigger
@@ -13,6 +14,8 @@ import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Test
 import provider.TriggProvider
 import provider.spawn
+import kotlin.random.Random
+import kotlin.random.nextUInt
 
 @OptIn(ExperimentalUnsignedTypes::class)
 private class GroupAdderTests {
@@ -494,6 +497,55 @@ private class GroupAdderTests {
         Assertions.assertTrue {
             nestedGroupAdder2.collectedObjects
                 .all { it.groups.getOrThrow().contains(8u) && it.groups.getOrThrow().contains(3u) && it.groups.getOrThrow().contains(ctx.init.commonGroup.value) }
+        }
+    }
+
+    @Test
+    fun acquireRegisterTest() {
+        val ctx = TriggProvider()
+        ctx.init {
+            labelSpace {
+                baseOffset = Random.nextUInt(1u..50u)
+            }
+        }
+
+        for (registerID in ctx.init.labelSpace.registerRange)
+            Assertions.assertEquals(registerID, ctx.acquireRegister())
+
+        Assertions.assertEquals(ctx.init.labelSpace.registers.toInt(), ctx.acquiredRegisters.size)
+        Assertions.assertThrows(IndexOutOfBoundsException::class.java) {
+            ctx.acquireRegister()
+        }
+    }
+
+    @Test
+    fun releaseRegisterTest() {
+        val ctx = TriggProvider()
+        ctx.init {
+            labelSpace {
+                baseOffset = Random.nextUInt(1u..50u)
+            }
+        }
+
+        for (registerID in ctx.init.labelSpace.registerRange)
+            Assertions.assertEquals(registerID, ctx.acquireRegister())
+
+        Assertions.assertEquals(ctx.init.labelSpace.registers.toInt(), ctx.acquiredRegisters.size)
+        Assertions.assertThrows(IndexOutOfBoundsException::class.java) {
+            ctx.acquireRegister()
+        }
+
+
+        val originalAcquiredRegistersSize = ctx.acquiredRegisters.size
+
+        val registersToRelease = ctx.acquiredRegisters.shuffled()
+        registersToRelease.forEachIndexed { index, register ->
+            ctx.releaseRegister(register)
+            Assertions.assertEquals(originalAcquiredRegistersSize - (index + 1), ctx.acquiredRegisters.size)
+        }
+
+        Assertions.assertThrows(IllegalArgumentException::class.java) {
+            ctx.releaseRegister(Random.nextUInt())
         }
     }
 }

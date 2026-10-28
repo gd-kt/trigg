@@ -15,6 +15,7 @@ import editor.wsliveeditor.WSLiveEditor
 import generator.GroupAdder
 import generator.TriggFunctionType
 import generator.group
+import java.util.SequencedSet
 import kotlin.contracts.ExperimentalContracts
 import kotlin.contracts.InvocationKind
 import kotlin.contracts.contract
@@ -100,6 +101,10 @@ class TriggProvider internal constructor(): ObjectManager<SimpleObject>, RawStri
     private var _nextFreeLabel: UInt = 0u
     override val nextFreeLabel: UInt
         get() = this._nextFreeLabel + this.init.labelSpace.scriptRange.first
+
+    private val _acquiredRegisters: SequencedSet<UInt> by lazy { LinkedHashSet(this.init.labelSpace.registers.toInt()) }
+    override val acquiredRegisters: Set<UInt>
+        get() = _acquiredRegisters
 
     override fun asRawString(): String =
         RawStringFactory.joinRawStrings(this.addedObjects)
@@ -251,6 +256,22 @@ class TriggProvider internal constructor(): ObjectManager<SimpleObject>, RawStri
         this._nextFreeLabel++
 
         return acquiredLabel
+    }
+
+    override fun acquireRegister(): UInt {
+        for (registerID in this.init.labelSpace.registerRange) {
+            if (registerID !in this.acquiredRegisters) {
+                this._acquiredRegisters.add(registerID)
+                return registerID
+            }
+        }
+
+        throw IndexOutOfBoundsException("All ${this.init.labelSpace.registers} registers were acquired ! No more registers can be acquired, maybe increase its size limit ?")
+    }
+
+    override fun releaseRegister(register: UInt) {
+        require(register in this.init.labelSpace.registerRange) { "Given register $register is not in the valid register range ${this.init.labelSpace.registerRange}" }
+        this._acquiredRegisters.remove(register)
     }
 
     @ConsistentCopyVisibility

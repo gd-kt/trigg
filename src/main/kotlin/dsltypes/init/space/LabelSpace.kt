@@ -41,7 +41,7 @@ interface LabelSpace {
      * The range in which registers are contained
      */
     val registerRange: UIntRange
-        get() = ((this.baseOffset + 1u)..(this.baseOffset + 1u + this.registers)).groupClamping()
+        get() = ((this.baseOffset + 1u)..(this.baseOffset + this.registers)).groupClamping()
 
     /**
      * The range in which script labels are contained

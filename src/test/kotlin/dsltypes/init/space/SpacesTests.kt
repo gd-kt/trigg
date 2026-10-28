@@ -10,16 +10,21 @@ private class LabelSpaceTests {
     @Test
     fun rangeTests() {
         val labelSpace = MutableLabelSpace()
-        Assertions.assertEquals(1u..(labelSpace.registers + 1u), labelSpace.registerRange)
+        Assertions.assertEquals(1u..labelSpace.registers, labelSpace.registerRange)
 
         labelSpace.baseOffset = 1u
-        Assertions.assertEquals(2u..(labelSpace.registers + 2u), labelSpace.registerRange)
+        Assertions.assertEquals(2u..(labelSpace.registers + 1u), labelSpace.registerRange)
 
         labelSpace.baseOffset = 8u
         Assertions.assertEquals(labelSpace.scriptRange.first..(labelSpace.registerRange.last + 1u + labelSpace.script), labelSpace.scriptRange)
         Assertions.assertFalse(labelSpace.registerRange.overlaps(labelSpace.scriptRange))
 
         Assertions.assertEquals(labelSpace.scriptRange.first, labelSpace.scriptOffset)
+
+        labelSpace.baseOffset = 0u
+        labelSpace.registers = 10u
+        // 1u..10u contains 10 possible labels
+        Assertions.assertEquals(1u..10u, labelSpace.registerRange)
     }
 }
 

@@ -19,6 +19,7 @@ import kotlin.contracts.contract
 
 /**
  * Collects objects which are all assigned a default group
+ * @property context the context in which to add the objects
  * @property group the group to assign
  * @property addObjectsToContext if the objects should get automatically added to the [context]
  */
@@ -93,14 +94,23 @@ class GroupAdder(
     override val nextFreeLabel: UInt
         get() = this.context.nextFreeLabel
 
+    override val acquiredRegisters: Set<UInt>
+        get() = this.context.acquiredRegisters
+
     override fun acquireGroup(): UInt =
         this.context.acquireGroup()
 
     override fun acquireLabel(): UInt =
         this.context.acquireLabel()
+
+    override fun acquireRegister(): UInt =
+        this.context.acquireRegister()
+
+    override fun releaseRegister(register: UInt) =
+        this.context.releaseRegister(register)
 }
 
-/**
+    /**
  * Creates a [GroupAdder] to create objects at "compile time" with a given group.
  * If there are spawn branches, these won't get assigned the given [group], only
  * the root objects will.

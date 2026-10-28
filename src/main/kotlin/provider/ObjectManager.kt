@@ -11,13 +11,23 @@ interface ObjectManager<Obj : GenericGdObject>: ScopedObjectAdder<Obj>, GroupHan
 abstract class WrappedObjectManager<Obj : GenericGdObject>(private val wrappedContext: ObjectManager<Obj>) : ObjectManager<Obj> {
     override val nextFreeGroup: UInt
         get() = this.wrappedContext.nextFreeGroup
+
     override val nextFreeLabel: UInt
         get() = this.wrappedContext.nextFreeLabel
+
+    override val acquiredRegisters: Set<UInt>
+        get() = this.wrappedContext.acquiredRegisters
 
     override fun acquireGroup(): UInt =
         this.wrappedContext.acquireGroup()
     override fun acquireLabel(): UInt =
         this.wrappedContext.acquireLabel()
+
+    override fun acquireRegister(): UInt =
+        this.wrappedContext.acquireRegister()
+
+    override fun releaseRegister(register: UInt) =
+        this.wrappedContext.releaseRegister(register)
 
     override fun <T : Obj> add(obj: T): T =
         this.wrappedContext.add(obj)
