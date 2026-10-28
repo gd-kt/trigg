@@ -49,9 +49,6 @@ interface ScopedObjectAdder<Obj : GenericGdObject> {
     fun add(objs: Iterable<Obj>) =
         objs.forEach(::add)
 
-    // TODO: spawn(group, lambda)
-    // + maybe asFunction() to be able to respawn something -> throws an exception in TriggProvider
-
     /**
      * Spawns a lambda after a given delay (which is `>=0`)
      * @param group the group of the content of what tp spawn.
