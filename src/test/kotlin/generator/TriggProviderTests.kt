@@ -5,10 +5,14 @@ import editor.objects.data.Pos
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.Test
+import provider.ObjectManager
 import provider.TriggProvider
 import provider.trigg
 
-private class TriggProviderTests {
+internal class TriggProviderTests {
+    @TriggFunction
+    fun testFunction(ctx: ObjectManager<SimpleObject>) {}
+
     @AfterEach
     fun afterEach() {
         TriggProvider.INSTANCE = null
@@ -53,6 +57,8 @@ private class TriggProviderTests {
             { it.add { SimpleObject(1u, Pos.ZERO) } },
             { it.entrypoint { } },
             { it.group(7u) { } },
+            { it.defineFunction(::testFunction) },
+            { it.spawnFunction(::testFunction) },
 
             { it.acquireLabel() },
             { it.acquireGroup() }

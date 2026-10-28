@@ -20,6 +20,7 @@ dependencies {
 
     testImplementation(kotlin("test"))
     implementation("com.github.gd-kt:gd.kt:$gdDotKtVersion")
+    implementation(kotlin("reflect"))
 }
 
 kotlin {

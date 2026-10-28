@@ -3,6 +3,7 @@ package provider
 import editor.objects.GenericGdObject
 import editor.objects.data.Pos
 import editor.objects.triggers.misc.SpawnTrigger
+import generator.TriggFunctionType
 
 interface ObjectManager<Obj : GenericGdObject>: ScopedObjectAdder<Obj>, GroupHandler
 
@@ -22,6 +23,12 @@ abstract class WrappedObjectManager<Obj : GenericGdObject>(private val wrappedCo
 
     override fun spawn(spawner: ObjectManager<Obj>.() -> Unit, delay: Float): SpawnTrigger =
         this.wrappedContext.spawn(spawner, delay)
+
+    override fun defineFunction(triggFunction: TriggFunctionType): UInt =
+        this.wrappedContext.defineFunction(triggFunction)
+
+    override fun spawnFunction(triggFunction: TriggFunctionType, canSpawnEarly: Boolean, delay: Float): SpawnTrigger =
+        this.wrappedContext.spawnFunction(triggFunction)
 
     override fun getNextPos(): Pos =
         this.wrappedContext.getNextPos()

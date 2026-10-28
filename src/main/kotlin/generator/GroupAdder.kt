@@ -1,5 +1,6 @@
 package generator
 
+import Group.Companion.group
 import editor.objects.SimpleObject
 import editor.objects.data.Pos
 import editor.objects.triggers.TriggerObject
@@ -9,6 +10,8 @@ import editor.rawstring.property.NULL_GROUP
 import editor.rawstring.property.getOrThrow
 import provider.ObjectManager
 import provider.TriggProvider
+import provider.defineFunctionHelper
+import provider.spawnFunctionHelper
 import kotlin.contracts.ExperimentalContracts
 import kotlin.contracts.InvocationKind
 import kotlin.contracts.contract
@@ -20,7 +23,7 @@ import kotlin.contracts.contract
  */
 class GroupAdder(
     private val context: ObjectManager<SimpleObject>,
-    val group: UInt = 0u,
+    val group: UInt = NULL_GROUP,
     val addObjectsToContext: Boolean = true
 ): ObjectManager<SimpleObject> {
     init {
@@ -68,6 +71,12 @@ class GroupAdder(
 
         return this.addSpawnTrigger(acquiredGroup, delay)
     }
+
+    override fun defineFunction(triggFunction: TriggFunctionType): UInt =
+        this.defineFunctionHelper(triggFunction, TriggProvider.getInstance()._triggFunctions)
+
+    override fun spawnFunction(triggFunction: TriggFunctionType, canSpawnEarly: Boolean, delay: Float): SpawnTrigger =
+        this.spawnFunctionHelper(triggFunction, canSpawnEarly, delay, TriggProvider.getInstance()._triggFunctions)
 
     override fun getNextPos(): Pos = this.context.getNextPos()
 

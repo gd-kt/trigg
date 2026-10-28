@@ -1,5 +1,6 @@
 package provider
 
+import Group
 import dsltypes.init.MutableTriggInit
 import dsltypes.init.TriggInit
 import editor.objects.GenericGdObject
@@ -12,8 +13,8 @@ import editor.rawstring.RawStringFactory
 import editor.rawstring.RawStringable
 import editor.wsliveeditor.WSLiveEditor
 import generator.GroupAdder
+import generator.TriggFunctionType
 import generator.group
-import kotlin.collections.mutableListOf
 import kotlin.contracts.ExperimentalContracts
 import kotlin.contracts.InvocationKind
 import kotlin.contracts.contract
@@ -81,6 +82,11 @@ class TriggProvider internal constructor(): ObjectManager<SimpleObject>, RawStri
     var entrypointInitialized: Boolean = false
         private set
 
+    @Suppress("PropertyName")
+    internal val _triggFunctions: MutableMap<TriggFunctionType, TriggFunctionState> = mutableMapOf()
+    val triggFunctions: Map<TriggFunctionType, TriggFunctionState>
+        get() = this._triggFunctions
+
     private var currentPos: Pos = Pos.gridCentered(-1f, 0f)
 
     private var _init: TriggInit? = null
@@ -143,6 +149,20 @@ class TriggProvider internal constructor(): ObjectManager<SimpleObject>, RawStri
 
             return@add spawnTrigger
         }
+    }
+
+    override fun defineFunction(triggFunction: TriggFunctionType): UInt {
+        this.throwIfFinished()
+        this.lockInit()
+
+        return this.defineFunctionHelper(triggFunction, this._triggFunctions)
+    }
+
+    override fun spawnFunction(triggFunction: TriggFunctionType, canSpawnEarly: Boolean, delay: Float): SpawnTrigger {
+        this.throwIfFinished()
+        this.lockInit()
+
+        return this.spawnFunctionHelper(triggFunction, canSpawnEarly, delay, this._triggFunctions)
     }
 
     /**
@@ -230,6 +250,9 @@ class TriggProvider internal constructor(): ObjectManager<SimpleObject>, RawStri
 
         return acquiredLabel
     }
+
+    @ConsistentCopyVisibility
+    data class TriggFunctionState internal constructor(val group: Group, val hasBeenDefined: Boolean)
 }
 
 // TODO: Link doc in KDoc
@@ -251,6 +274,12 @@ fun trigg(triggBuilder: TriggProvider.() -> Unit): String {
     triggBuilder(trigg)
     trigg.isFinished = true
     TriggProvider.INSTANCE = null
+
+    trigg.triggFunctions
+        .filter { !it.value.hasBeenDefined }
+        .forEach { (function, state) ->
+            throw IllegalStateException("TriggFunction $function has been called but not defined")
+        }
 
     if (trigg.init.clearPreviousObjects)
         WSLiveEditor().use {
