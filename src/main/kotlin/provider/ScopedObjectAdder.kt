@@ -54,17 +54,14 @@ interface ScopedObjectAdder<Obj : GenericGdObject> {
 
     /**
      * Spawns a lambda after a given delay (which is `>=0`)
+     * @param group the group of the content of what tp spawn.
+     *              If `null`, a new group will get [acquired][GroupHandler.acquireGroup] instead
+     * @param delay the time after which the [lambda][spawner] will get spawned. It must be `>=0`
      * @param spawner what to spawn
-     * @param delay the time after which the [lambda][spawner] will get spawned
+     * @return the created [SpawnTrigger] used to spawn
+     * @see spawnFunction
      */
-    fun spawn(spawner: ObjectManager<Obj>.() -> Unit, delay: Float): SpawnTrigger
-
-    /**
-     * Spawns a lambda instantly (with a delay of `0`)
-     * @param spawner what to spawn
-     */
-    fun spawn(spawner: ObjectManager<Obj>.() -> Unit): SpawnTrigger =
-        this.spawn(spawner, 0f)
+    fun spawn(group: Group? = null, delay: Float = 0f, spawner: ObjectManager<Obj>.() -> Unit): SpawnTrigger
 
     /**
      * Defines a [TriggFunction] for the **global [trigg instance][TriggProvider]**.

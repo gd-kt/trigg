@@ -119,6 +119,34 @@ private class GroupAdderTests {
     }
 
     @Test
+    @DisplayName("Spawn(group, lambda) test")
+    fun spawnGroupLambdaTest() {
+        val objAdder = GroupAdder(TriggProvider(), 5u)
+        objAdder.add { SimpleObject(5u, Pos.ZERO) }
+        objAdder.add { TimewarpTrigger(Pos.ZERO, 1.5f) }
+
+        objAdder.spawn(91.group) {
+            objAdder.add { SimpleObject(5u, Pos.ZERO) }
+        }
+
+        Assertions.assertFalse {
+            objAdder.collectedObjects.all {
+                it.groups.getOrThrow().contains(5u)
+                        && it.groups.getOrThrow().contains(TriggInit.DEFAULT.commonGroup.value)
+                        && it.groups.size() == 1
+            }
+        }
+
+        Assertions.assertTrue {
+            objAdder.spawnBranches.flatten().all {
+                it.groups.getOrThrow().contains(91u)
+                        && it.groups.getOrThrow().contains(TriggInit.DEFAULT.commonGroup.value)
+                        && it.groups.size() == 2
+            }
+        }
+    }
+
+    @Test
     @DisplayName("ObjectManager.group test")
     fun groupTest() {
         val ctx = TriggProvider()

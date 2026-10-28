@@ -1,5 +1,6 @@
 package generator
 
+import Group
 import Group.Companion.group
 import editor.objects.SimpleObject
 import editor.objects.data.Pos
@@ -58,8 +59,9 @@ class GroupAdder(
         return obj
     }
 
-    override fun spawn(spawner: ObjectManager<SimpleObject>.() -> Unit, delay: Float): SpawnTrigger {
-        val acquiredGroup = this.context.acquireGroup()
+    override fun spawn(group: Group?, delay: Float, spawner: ObjectManager<SimpleObject>.() -> Unit): SpawnTrigger {
+        val groupUInt = group?.let { group.value }
+        val acquiredGroup = groupUInt ?: this.acquireGroup()
 
         val collector = GroupAdder(this.context, acquiredGroup, addObjectsToContext = this.addObjectsToContext)
         collector.spawner()
