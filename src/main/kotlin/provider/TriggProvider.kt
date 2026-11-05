@@ -40,7 +40,7 @@ class TriggProvider internal constructor(): ObjectManager<SimpleObject>, RawStri
 
         /**
          * Gets the current [TriggProvider] instance
-         * @throws IllegalStateException if there is no trigg
+         * @throws IllegalStateException if there is no trigg instance available
          */
         fun getInstance(): TriggProvider =
             checkNotNull(INSTANCE) { "No trigg instance was created ! Maybe you're calling it after it got destroyed ?" }
