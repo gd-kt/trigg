@@ -280,7 +280,7 @@ fun trigg(triggBuilder: TriggProvider.() -> Unit): String {
     trigg.triggFunctions
         .filter { !it.value.hasBeenDefined }
         .forEach { (function, state) ->
-            throw IllegalStateException("TriggFunction $function has been called but not defined")
+            throw IllegalStateException("TriggFunction $function has been called but not defined") // TODO: add test
         }
 
     if (trigg.init.clearPreviousObjects)
