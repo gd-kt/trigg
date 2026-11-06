@@ -3,6 +3,7 @@ package generator
 import Group
 import Group.Companion.group
 import editor.objects.SimpleObject
+import editor.objects.data.GridPos
 import editor.objects.data.Pos
 import editor.objects.triggers.TriggerObject
 import editor.objects.triggers.misc.SpawnTrigger
@@ -81,7 +82,7 @@ class GroupAdder(
     override fun spawnFunction(triggFunction: TriggFunctionType, canSpawnEarly: Boolean, delay: Float): SpawnTrigger =
         this.spawnFunctionHelper(triggFunction, canSpawnEarly, delay, TriggProvider.getInstance()._triggFunctions)
 
-    override fun getNextPos(): Pos = this.context.getNextPos()
+    override fun getNextPos(): Pos = this.context.getNextPos() + GridPos(2.0f, 0f)
 
     private fun addSpawnTrigger(targetID: UInt, delay: Float): SpawnTrigger =
         this.add {
