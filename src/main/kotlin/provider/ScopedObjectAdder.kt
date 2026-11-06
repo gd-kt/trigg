@@ -12,7 +12,10 @@ import generator.GroupAdder
 import generator.TriggFunction
 import generator.TriggFunctionType
 import provider.TriggProvider.TriggFunctionState
+import utils.toFloat
 import kotlin.collections.set
+import kotlin.time.Duration
+import kotlin.time.DurationUnit
 
 @TriggDsl
 interface ScopedObjectAdder<Obj : GenericGdObject> {
@@ -137,12 +140,45 @@ interface ScopedObjectAdder<Obj : GenericGdObject> {
 /**
  * Spawns a specific group
  * @param group the group to spawn
+ * @param delay the time after which the [group] will get spawned. It must be `>=0`
  * @return the created [SpawnTrigger]
  */
 fun ScopedObjectAdder<in SpawnTrigger>.spawn(group: Group, delay: Float = 0f): SpawnTrigger =
     this.add {
         SpawnTrigger(this.getNextPos(), group.value, delay)
     }
+
+/**
+ * Spawns a specific group
+ * @param group the group to spawn
+ * @param delay the time after which the [group] will get spawned. It must be `>=0`
+ * @return the created [SpawnTrigger]
+ */
+fun ScopedObjectAdder<in SpawnTrigger>.spawn(group: Group, delay: Duration): SpawnTrigger =
+    this.spawn(group, delay.toFloat(DurationUnit.SECONDS))
+
+/**
+ * Spawns a lambda after a given delay (which is `>=0`)
+ * @param group the group of the content of what tp spawn.
+ *              If `null`, a new group will get [acquired][GroupHandler.acquireGroup] instead
+ * @param delay the time after which the [lambda][spawner] will get spawned. It must be `>=0`
+ * @param spawner what to spawn
+ * @return the created [SpawnTrigger] used to spawn
+ * @see spawnFunction
+ */
+fun ScopedObjectAdder<*>.spawn(group: Group? = null, delay: Duration, spawner: ObjectManager<*>.() -> Unit) =
+    this.spawn(group, delay.toFloat(DurationUnit.SECONDS), spawner)
+
+/**
+ * Spawns a [TriggFunction] stored in the **global [trigg instance][TriggProvider]**.
+ *
+ * See [ScopedObjectAdder.spawnFunction] for more info
+ * @param triggFunction the function to spawn
+ * @param canSpawnEarly if the function can be spawned even if it has not been defined yet
+ * @param delay the time it takes to execute the given [function][triggFunction] after executing this
+ */
+fun ScopedObjectAdder<*>.spawnFunction(triggFunction: TriggFunctionType, canSpawnEarly: Boolean = true, delay: Duration): SpawnTrigger =
+    this.spawnFunction(triggFunction, canSpawnEarly, delay.toFloat(DurationUnit.SECONDS))
 
 fun ScopedObjectAdder<in SimpleObject>.add(groupAdder: GroupAdder) =
     this.add(groupAdder.collectedObjects)
