@@ -53,7 +53,7 @@ interface ValueWithCounter {
  * ## Constructors
  *
  * Since there are multiple types of [GDValues][GDValue], there are multiple constructors:
- * - [const(Number)][const] and [`const(Uint)`][const]: Creates a constant from any number.
+ * - [const(Number)][const] and [const(Uint)][const]: Creates a constant from any number.
  * The value **gets cast into an int**.
  * - [constFloat(Number)][constFloat]: Creates a float constant from any number.
  * The value **gets cast into a float**.
