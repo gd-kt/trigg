@@ -1,5 +1,6 @@
 package dsltypes.comparison
 
+import Group.Companion.group
 import OldEntrypointTriggProvider
 import dsltypes.values.*
 import editor.objects.SimpleObject
@@ -67,8 +68,8 @@ private class CompBranchesBuilderTests {
     @Test
     fun thenBranchTest() {
         val ctx = OldEntrypointTriggProvider()
-
         TriggProvider.INSTANCE = ctx
+
         val compNoInline = ctx.comp(attempts() greaterThanEqual const(15)) {
             then {
                 add { SimpleObject(1u, Pos.ZERO) }
@@ -99,8 +100,8 @@ private class CompBranchesBuilderTests {
     @Test
     fun inlinedThenBranchTest() {
         val ctx = OldEntrypointTriggProvider()
-
         TriggProvider.INSTANCE = ctx
+
         val compInline: Comparison
         ctx.entrypoint(execute = false) {
             compInline = comp(const(8) equalsTo const(8)) {
@@ -134,8 +135,8 @@ private class CompBranchesBuilderTests {
     @Test
     fun elseBranchTest() {
         val ctx = OldEntrypointTriggProvider()
-
         TriggProvider.INSTANCE = ctx
+
         val compNoInline = ctx.comp(attempts() greaterThanEqual const(15)) {
             then {
                 add { SimpleObject(1u, Pos.ZERO) }
@@ -163,6 +164,7 @@ private class CompBranchesBuilderTests {
     fun inlineElseBranchTest() {
         val ctx = OldEntrypointTriggProvider()
         TriggProvider.INSTANCE = ctx
+
         val compInline = ctx.comp(const(12) greaterThanEqual const(15)) {
             then {
                 add { SimpleObject(1u, Pos.ZERO) }
@@ -189,8 +191,8 @@ private class CompBranchesBuilderTests {
     @Test
     fun elseifBranchTest() {
         val ctx = OldEntrypointTriggProvider()
-
         TriggProvider.INSTANCE = ctx
+
         val compNoInline = ctx.comp(attempts() greaterThanEqual const(15)) {
             then {
                 add { SimpleObject(1u, Pos.ZERO) }
@@ -219,6 +221,20 @@ private class CompBranchesBuilderTests {
 
         Assertions.assertNotEquals(2u, compNoInline.obj.failedSpawnID.getOrThrow())
         Assertions.assertEquals(1u, compNoInline.obj.succeededSpawnID.getOrThrow())
+    }
+
+    @Test
+    fun branchSpecificGroupTest() {
+        val ctx = OldEntrypointTriggProvider()
+        TriggProvider.INSTANCE = ctx
+
+        val comp = ctx.comp(attempts() greaterThanEqual const(8)) {
+            then(6.group)
+            fail(7.group)
+        }
+
+        Assertions.assertEquals(6u, comp.obj.succeededSpawnID.getOrThrow())
+        Assertions.assertEquals(7u, comp.obj.failedSpawnID.getOrThrow())
     }
 
 

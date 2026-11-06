@@ -87,6 +87,9 @@ class Comparison internal constructor(
         return this
     }
 
+    fun then(group: UInt): Comparison =
+        this.then({}) { group }
+
     fun fail(elseClause: ConditionalBranch, groupAcquirer: () -> UInt): Comparison {
         check(this.thenClause != null) {
             "Cannot set an 'else conditional branch' before a 'then' one !"
@@ -101,6 +104,9 @@ class Comparison internal constructor(
         this.elseClause = elseClause
         return this
     }
+
+    fun fail(group: UInt): Comparison =
+        this.fail({}) { group }
 
     /**
      * Represents the comparison branch that should be inlined.

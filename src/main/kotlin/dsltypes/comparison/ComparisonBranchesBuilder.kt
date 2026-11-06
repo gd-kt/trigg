@@ -1,8 +1,12 @@
 package dsltypes.comparison
 
+import Group
+import Group.Companion.group
 import TriggDsl
 import dsltypes.values.ComparisonCreator
 import editor.objects.SimpleObject
+import generator.TriggFunction
+import generator.TriggFunctionType
 import generator.onlyGroup
 import provider.ObjectManager
 import provider.WrappedObjectManager
@@ -41,6 +45,22 @@ class ComparisonBranchesBuilder(val ctx: ObjectManager<SimpleObject>, comp: Comp
     }
 
     /**
+     * Sets the `then` branch of this comparison to be a given [group]
+     * @param group the group which value's is used to set the success group ID
+     */
+    infix fun then(group: Group): ComparisonBranchesBuilder {
+        this.comp.then(group.value)
+        return this
+    }
+
+    /**
+     * Sets the `then` branch of this comparison to be a given [TriggFunction]
+     * @param triggFunction the [TriggFunction] to spawn when the condition succeeds
+     */
+    infix fun then(triggFunction: TriggFunctionType): ComparisonBranchesBuilder =
+        this.then(TriggFunction.getGroupID(triggFunction).group)
+
+    /**
      * Sets the `else` branch of this comparison on the furthest branch.
      * It must be the last call in this builder.
      *
@@ -68,6 +88,50 @@ class ComparisonBranchesBuilder(val ctx: ObjectManager<SimpleObject>, comp: Comp
      */
     infix fun fail(elseClause: ConditionalBranch): ComparisonBranchesBuilder {
         this.latestCompBranch.fail(elseClause) { this.ctx.acquireGroup() }
+        return this
+    }
+
+    /**
+     * Sets the `else` branch of this comparison to be a given [group]
+     * @param group the group which value's is used to set the success group ID
+     */
+    infix fun fail(group: Group): ComparisonBranchesBuilder {
+        this.comp.fail(group.value)
+        return this
+    }
+
+    /**
+     * Sets the `else` branch of this comparison to be a given [TriggFunction]
+     * @param triggFunction the [TriggFunction] to spawn when the condition fails
+     */
+    infix fun fail(triggFunction: TriggFunctionType): ComparisonBranchesBuilder =
+        this.fail(TriggFunction.getGroupID(triggFunction).group)
+
+
+    private fun elseifHelper(elseifComp: ComparisonCreator, thenSetter: (compBuilder: ComparisonBranchesBuilder) -> Unit): ComparisonBranchesBuilder {
+        check(this.comp.thenClause != null) {
+            "Cannot make an else-if branch before a then branch"
+        }
+
+        check(this.latestCompBranch.elseClause == null) {
+            "Cannot make an else-if branch after an else branch"
+        }
+
+        val compBuilder = ComparisonBranchesBuilder(this, elseifComp)
+        thenSetter(compBuilder)
+
+        val latestComp = this@ComparisonBranchesBuilder.latestCompBranch
+        latestComp.elseClause = { compCtx ->
+            val acquiredGroup = this.ctx.acquireGroup()
+            latestComp.obj.failedSpawnID.value = acquiredGroup
+
+            onlyGroup(acquiredGroup) {
+                val comp = compBuilder.build()
+                comp.createAllObjects(this)
+            }
+        }
+
+        this.latestCompBranch = compBuilder.comp
         return this
     }
 
@@ -105,32 +169,22 @@ class ComparisonBranchesBuilder(val ctx: ObjectManager<SimpleObject>, comp: Comp
      * }
      * ```
      */
-    fun elseif(elseifComp: ComparisonCreator, elseifBranch: ConditionalBranch): ComparisonBranchesBuilder {
-        check(this.comp.thenClause != null) {
-            "Cannot make an else-if branch before a then branch"
-        }
+    fun elseif(elseifComp: ComparisonCreator, elseifBranch: ConditionalBranch): ComparisonBranchesBuilder =
+        this.elseifHelper(elseifComp) { it.then(elseifBranch) }
 
-        check(this.latestCompBranch.elseClause == null) {
-            "Cannot make an else-if branch after an else branch"
-        }
+    /**
+     * Sets the `else if` branch of this comparison on the furthest branch.
+     * @param group the group to spawn when this branch gets executed
+     */
+    fun elseif(elseifComp: ComparisonCreator, group: Group) =
+        this.elseifHelper(elseifComp) { it.then(group) }
 
-        val compBuilder = ComparisonBranchesBuilder(this, elseifComp)
-        compBuilder.then(elseifBranch)
-
-        val latestComp = this@ComparisonBranchesBuilder.latestCompBranch
-        latestComp.elseClause = { compCtx ->
-            val acquiredGroup = this.ctx.acquireGroup()
-            latestComp.obj.failedSpawnID.value = acquiredGroup
-
-            onlyGroup(acquiredGroup) {
-                val comp = compBuilder.build()
-                comp.createAllObjects(this)
-            }
-        }
-
-        this.latestCompBranch = compBuilder.comp
-        return this
-    }
+    /**
+     * Sets the `else if` branch of this comparison on the furthest branch.
+     * @param triggFunction the [TriggFunction] to spawn when this branch gets executed
+     */
+    fun elseif(elseifComp: ComparisonCreator, triggFunction: TriggFunctionType) =
+        this.elseifHelper(elseifComp) { it.then(triggFunction) }
 
     /**
      * Builds the comparison of this [ComparisonBranchesBuilder]
