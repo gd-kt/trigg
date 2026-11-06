@@ -88,7 +88,7 @@ class TriggProvider internal constructor(): ObjectManager<SimpleObject>, RawStri
     val triggFunctions: Map<TriggFunctionType, TriggFunctionState>
         get() = this._triggFunctions
 
-    private var currentPos: Pos = Pos.gridCentered(-1f, 0f)
+    private var currentPos: Pos = Pos.gridCentered(5f, 3f)
 
     private var _init: TriggInit? = null
     val init: TriggInit
@@ -223,13 +223,14 @@ class TriggProvider internal constructor(): ObjectManager<SimpleObject>, RawStri
      * @return the pos where to place the next object
      */
     override fun getNextPos(): Pos {
+        val posOffset = GridPos(0.1f, 1f)
         if (this.isFinished) {
-            return this.currentPos + GridPos(0f, 1f)
+            return this.currentPos + posOffset
         } else {
             this.lockInit()
 
             val posSnapshot = this.currentPos.copy()
-            this.currentPos += GridPos(0f, 1f)
+            this.currentPos += posOffset
             return posSnapshot + this.init.basePos
         }
     }
