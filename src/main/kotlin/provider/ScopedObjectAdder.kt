@@ -129,6 +129,15 @@ interface ScopedObjectAdder<in Obj : GenericGdObject> {
     fun spawnFunction(triggFunction: TriggFunctionType, canSpawnEarly: Boolean = true, delay: Float = 0f): SpawnTrigger
 
     /**
+     * Gets the ID of a [TriggFunction].
+     * If it has not been called or defined yet a new group
+     * will be [acquired][GroupHandler.acquireGroup]
+     * @see spawnFunction
+     * @see defineFunction
+     */
+    fun getFunctionID(triggFunction: TriggFunctionType): UInt // TODO: Add test
+
+    /**
      * Gets the pos to place a trigger.
      * This is not needed but is more for not
      * cluttering every objects around a single point
@@ -208,5 +217,18 @@ internal fun ObjectManager<SimpleObject>.spawnFunctionHelper(function: TriggFunc
     } else {
         check(triggFunctions.contains(function)) { "Cannot spawn a function if it has not been defined yet" }
         return this.spawn(triggFunctions[function]!!.group, delay)
+    }
+}
+
+internal fun ObjectManager<SimpleObject>.getFunctionIdHelper(function: TriggFunctionType, triggFunctions: MutableMap<TriggFunctionType, TriggFunctionState>): UInt {
+    if (triggFunctions.contains(function)) {
+        return triggFunctions[function]!!.group.value
+    } else {
+        TriggFunction.validate(function)
+
+        val acquiredGroup = this.acquireGroup()
+        triggFunctions[function] = TriggFunctionState(acquiredGroup.group, hasBeenDefined = false)
+
+        return acquiredGroup
     }
 }

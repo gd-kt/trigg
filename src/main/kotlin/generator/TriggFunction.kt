@@ -3,7 +3,6 @@ package generator
 import editor.objects.GenericGdObject
 import editor.objects.SimpleObject
 import provider.ObjectManager
-import provider.TriggProvider
 import kotlin.reflect.KClass
 import kotlin.reflect.KFunction
 import kotlin.reflect.KTypeProjection
@@ -90,17 +89,6 @@ annotation class TriggFunction {
             require(triggFunction.parameters.first().type == objectManagerType) { "A TriggFunction only accepts 1 parameter of type ObjectManger<SimpleObject> !" }
 
             require(triggFunction.annotations.contains(TriggFunction())) { "A TriggFunction must be annotated with @TriggFunction" }
-        }
-
-        /**
-         * Gets the group ID of any given [TriggFunction]
-         * @return the [TriggFunction]'s group
-         */
-        fun getGroupID(triggFunc: TriggFunctionType): UInt {
-            val triggProvider = TriggProvider.getInstance()
-
-            check(triggFunc in triggProvider.triggFunctions) { "Cannot get the ID of a function if it has not been called/defined yet" }
-            return triggProvider.triggFunctions[triggFunc]!!.group.value
         }
     }
 }

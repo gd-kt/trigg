@@ -172,6 +172,9 @@ class TriggProvider internal constructor(): ObjectManager<SimpleObject>, RawStri
         return this.spawnFunctionHelper(triggFunction, canSpawnEarly, delay, this._triggFunctions)
     }
 
+    override fun getFunctionID(triggFunction: TriggFunctionType): UInt =
+        this.getFunctionIdHelper(triggFunction, this._triggFunctions)
+
     /**
      * Spawns the group representing the [entrypoint][dsltypes.init.space.GroupSpace.entrypoint]
      */

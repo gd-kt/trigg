@@ -13,6 +13,7 @@ import editor.rawstring.property.getOrThrow
 import provider.ObjectManager
 import provider.TriggProvider
 import provider.defineFunctionHelper
+import provider.getFunctionIdHelper
 import provider.spawnFunctionHelper
 import kotlin.contracts.ExperimentalContracts
 import kotlin.contracts.InvocationKind
@@ -81,6 +82,9 @@ class GroupAdder(
 
     override fun spawnFunction(triggFunction: TriggFunctionType, canSpawnEarly: Boolean, delay: Float): SpawnTrigger =
         this.spawnFunctionHelper(triggFunction, canSpawnEarly, delay, TriggProvider.getInstance()._triggFunctions)
+
+    override fun getFunctionID(triggFunction: TriggFunctionType): UInt =
+        this.getFunctionIdHelper(triggFunction, TriggProvider.getInstance()._triggFunctions)
 
     override fun getNextPos(): Pos = this.context.getNextPos() + GridPos(2.0f, 0f)
 

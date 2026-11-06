@@ -43,6 +43,9 @@ abstract class WrappedObjectManager<Obj : GenericGdObject>(private val wrappedCo
     override fun spawnFunction(triggFunction: TriggFunctionType, canSpawnEarly: Boolean, delay: Float): SpawnTrigger =
         this.wrappedContext.spawnFunction(triggFunction)
 
+    override fun getFunctionID(triggFunction: TriggFunctionType): UInt =
+        this.wrappedContext.getFunctionID(triggFunction)
+
     override fun getNextPos(): Pos =
         this.wrappedContext.getNextPos()
 }
