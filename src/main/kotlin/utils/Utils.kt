@@ -1,5 +1,8 @@
 package utils
 
+import kotlin.time.Duration
+import kotlin.time.DurationUnit
+
 fun UIntRange.groupClamping(includeZero: Boolean = false): UIntRange {
     val firstValue = if (includeZero) 0u else 1u
 
@@ -12,3 +15,6 @@ fun UIntRange.groupClamping(includeZero: Boolean = false): UIntRange {
 
 fun ClosedRange<UInt>.overlaps(other: ClosedRange<UInt>): Boolean =
     other.endInclusive >= this.start && other.start <= this.endInclusive
+
+fun Duration.toFloat(unit: DurationUnit) =
+    this.toDouble(unit).toFloat()
