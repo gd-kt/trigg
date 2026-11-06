@@ -517,11 +517,6 @@ fun ItemGDValue.setValue(value: UInt) =
  * @param itemID the optional itemID to set for the [ItemGDValue].
  *               If `null`, a new itemID will get [acquired][GroupHandler.acquireLabel]
  */
-// TODO: If an ItemGDValue has been created, return
-// a singleton instance of the ItemGDValue for this itemID
-//
-// if we're giving it a value (ObjectManager<SimpleObject>.item(itemID: UInt? = null, value: Number))
-// then it just sets the value and return the singleton value
 fun item(itemID: UInt? = null) = ItemGDValue(itemID)
 
 /**
