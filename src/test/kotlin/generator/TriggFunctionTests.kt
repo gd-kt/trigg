@@ -16,7 +16,7 @@ import provider.TriggProvider
 import provider.trigg
 import java.awt.Color
 
-@Suppress("unused")
+@Suppress("unused", "EmptyMethod")
 internal class TriggFunctionTests {
     @TriggFunction fun invalidTriggFunction() {}
     @TriggFunction fun invalidTriggFunction1(a: Int, b: Int) {}

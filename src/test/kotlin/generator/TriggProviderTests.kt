@@ -10,6 +10,7 @@ import provider.TriggProvider
 import provider.trigg
 
 internal class TriggProviderTests {
+    @Suppress("EmptyMethod")
     @TriggFunction
     fun testFunction(ctx: ObjectManager<SimpleObject>) {}
 
