@@ -5,6 +5,7 @@ import editor.objects.triggers.counters.ItemTriggerAbsNeg
 import editor.objects.triggers.counters.ItemTriggerRoundingType
 import editor.objects.triggers.counters.ItemTriggerTermType
 import editor.objects.triggers.counters.LabelType
+import editor.objects.triggers.counters.PickupOperationType
 import editor.rawstring.property.getOrThrow
 import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.DisplayName
@@ -209,5 +210,71 @@ private class GDValuesTests {
         Assertions.assertEquals(value.roundingType, itemEditTrigger.firstTermRoundingType.getOrThrow())
         Assertions.assertEquals(value.absNegType, itemEditTrigger.firstTermAbsNeg.getOrThrow())
         Assertions.assertEquals(1, ctx.addedObjects.size)
+    }
+
+    @Test
+    @DisplayName("Pickup Operation tests: add")
+    fun pickupOperationsAddTest() {
+        val ctx = TriggProvider()
+
+        val value = item()
+        val pickupTrigger = value.add(ctx, 6)
+        Assertions.assertNull(value.lastKnownValue)
+        Assertions.assertEquals(PickupOperationType.ADDITION, pickupTrigger.operationType.getOrThrow())
+        Assertions.assertEquals(value.getItemID(ctx), pickupTrigger.itemID.getOrThrow())
+        Assertions.assertEquals(6, pickupTrigger.count.getOrThrow())
+        Assertions.assertTrue(pickupTrigger.divisionMultiplicationFactor.isDefaultValue())
+
+        value.setValue(ctx, 0)
+        val pickupTrigger2 = value.add(ctx, 8)
+        Assertions.assertEquals(8, value.lastKnownValue)
+        Assertions.assertEquals(PickupOperationType.ADDITION, pickupTrigger2.operationType.getOrThrow())
+        Assertions.assertEquals(value.getItemID(ctx), pickupTrigger2.itemID.getOrThrow())
+        Assertions.assertEquals(8, pickupTrigger2.count.getOrThrow())
+        Assertions.assertTrue(pickupTrigger.divisionMultiplicationFactor.isDefaultValue())
+    }
+
+    @Test
+    @DisplayName("Pickup Operation tests: division")
+    fun pickupOperationsDivisionTest() {
+        val ctx = TriggProvider()
+
+        val value = item()
+        val pickupTrigger = value.divide(ctx, 6f)
+        Assertions.assertNull(value.lastKnownValue)
+        Assertions.assertEquals(PickupOperationType.DIVISION, pickupTrigger.operationType.getOrThrow())
+        Assertions.assertEquals(value.getItemID(ctx), pickupTrigger.itemID.getOrThrow())
+        Assertions.assertEquals(6f, pickupTrigger.divisionMultiplicationFactor.getOrThrow())
+        Assertions.assertTrue(pickupTrigger.count.isDefaultValue())
+
+        value.setValue(ctx, 5)
+        val pickupTrigger2 = value.divide(ctx, 8f)
+        Assertions.assertEquals(5/8, value.lastKnownValue)
+        Assertions.assertEquals(PickupOperationType.DIVISION, pickupTrigger2.operationType.getOrThrow())
+        Assertions.assertEquals(value.getItemID(ctx), pickupTrigger2.itemID.getOrThrow())
+        Assertions.assertEquals(8f, pickupTrigger2.divisionMultiplicationFactor.getOrThrow())
+        Assertions.assertTrue(pickupTrigger.count.isDefaultValue())
+    }
+
+    @Test
+    @DisplayName("Pickup Operation tests: multiplication")
+    fun pickupOperationsMultiplicationTest() {
+        val ctx = TriggProvider()
+
+        val value = item()
+        val pickupTrigger = value.multiply(ctx, 6f)
+        Assertions.assertNull(value.lastKnownValue)
+        Assertions.assertEquals(PickupOperationType.MULTIPLICATION, pickupTrigger.operationType.getOrThrow())
+        Assertions.assertEquals(value.getItemID(ctx), pickupTrigger.itemID.getOrThrow())
+        Assertions.assertEquals(6f, pickupTrigger.divisionMultiplicationFactor.getOrThrow())
+        Assertions.assertTrue(pickupTrigger.count.isDefaultValue())
+
+        value.setValue(ctx, 3)
+        val pickupTrigger2 = value.multiply(ctx, 8f)
+        Assertions.assertEquals(3*8, value.lastKnownValue)
+        Assertions.assertEquals(PickupOperationType.MULTIPLICATION, pickupTrigger2.operationType.getOrThrow())
+        Assertions.assertEquals(value.getItemID(ctx), pickupTrigger2.itemID.getOrThrow())
+        Assertions.assertEquals(8f, pickupTrigger2.divisionMultiplicationFactor.getOrThrow())
+        Assertions.assertTrue(pickupTrigger.count.isDefaultValue())
     }
 }
