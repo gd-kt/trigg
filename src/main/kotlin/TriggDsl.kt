@@ -1,2 +1,2 @@
 @DslMarker
-internal annotation class TriggDsl()
+internal annotation class TriggDsl

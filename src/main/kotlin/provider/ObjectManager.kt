@@ -1,12 +1,14 @@
 package provider
 
 import Group
+import TriggDsl
 import editor.objects.GenericGdObject
 import editor.objects.data.Pos
 import editor.objects.triggers.misc.SpawnTrigger
 import generator.TriggFunctionType
 
-interface ObjectManager<Obj : GenericGdObject>: ScopedObjectAdder<Obj>, GroupHandler
+@TriggDsl
+interface ObjectManager<in Obj : GenericGdObject>: ScopedObjectAdder<Obj>, GroupHandler
 
 abstract class WrappedObjectManager<Obj : GenericGdObject>(private val wrappedContext: ObjectManager<Obj>) : ObjectManager<Obj> {
     override val nextFreeGroup: UInt

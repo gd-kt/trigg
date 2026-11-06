@@ -22,7 +22,7 @@ interface ValueWithCounter {
      * @param pos the pos where to create the object
      * @return the created [CounterLabel][CounterLabelTrigger]
      */
-    context(ctx: ObjectManager<in SimpleObject>)
+    context(ctx: ObjectManager<SimpleObject>)
     fun createCounter(pos: Position = ctx.getNextPos() + GridPos(5f, 0f)): CounterLabelTrigger
 }
 
@@ -422,7 +422,7 @@ class ItemGDValue(itemID: UInt? = null) : WithIdGDValue(itemID, type = ItemTrigg
      */
     var lastKnownValue: Int? = null
 
-    context(ctx: ObjectManager<in SimpleObject>)
+    context(ctx: ObjectManager<SimpleObject>)
     override fun createCounter(pos: Position): CounterLabelTrigger =
         ctx.add { CounterLabelTrigger(pos, this.getItemID(ctx)) }
 
@@ -434,7 +434,7 @@ class ItemGDValue(itemID: UInt? = null) : WithIdGDValue(itemID, type = ItemTrigg
      *              No matter what geometry dash will **floor** the result into an [Int] unless
      *              the [roundingType] is changed
      */
-    fun setValue(ctx: ObjectManager<in SimpleObject>, value: Float): ItemEditTrigger {
+    fun setValue(ctx: ObjectManager<SimpleObject>, value: Float): ItemEditTrigger {
         this.lastKnownValue = value.toInt()
         return ctx.add {
             ItemEditTrigger(ctx.getNextPos()).apply {
@@ -453,7 +453,7 @@ class ItemGDValue(itemID: UInt? = null) : WithIdGDValue(itemID, type = ItemTrigg
      * be applied to the given [value]
      * @param value The value to set this value to
      */
-    fun setValue(ctx: ObjectManager<in SimpleObject>, value: Int): ItemEditTrigger =
+    fun setValue(ctx: ObjectManager<SimpleObject>, value: Int): ItemEditTrigger =
         this.setValue(ctx, value.toFloat())
 
     /**
@@ -462,12 +462,12 @@ class ItemGDValue(itemID: UInt? = null) : WithIdGDValue(itemID, type = ItemTrigg
      * be applied to the given [value]
      * @param value The value to set this value to
      */
-    fun setValue(ctx: ObjectManager<in SimpleObject>, value: UInt) =
+    fun setValue(ctx: ObjectManager<SimpleObject>, value: UInt) =
         this.setValue(ctx, value.toInt())
 }
 
 class TimerGDValue(timerID: UInt) : WithIdGDValue(timerID, type = ItemTriggerTermType.TIMER) {
-    context(ctx: ObjectManager<in SimpleObject>)
+    context(ctx: ObjectManager<SimpleObject>)
     override fun createCounter(pos: Position): CounterLabelTrigger =
         ctx.add {
             CounterLabelTrigger(pos, this.getItemID(ctx)).apply {
@@ -477,7 +477,7 @@ class TimerGDValue(timerID: UInt) : WithIdGDValue(timerID, type = ItemTriggerTer
 }
 
 class PointsGDValue : GDValue(type = ItemTriggerTermType.POINTS, isValueGlobal = true), ValueWithCounter {
-    context(ctx: ObjectManager<in SimpleObject>)
+    context(ctx: ObjectManager<SimpleObject>)
     override fun createCounter(pos: Position): CounterLabelTrigger =
         ctx.add {
             CounterLabelTrigger(pos).apply {
@@ -487,7 +487,7 @@ class PointsGDValue : GDValue(type = ItemTriggerTermType.POINTS, isValueGlobal =
 }
 
 class GameTimeGDValue : GDValue(type = ItemTriggerTermType.TIME, isValueGlobal = true), ValueWithCounter {
-    context(ctx: ObjectManager<in SimpleObject>)
+    context(ctx: ObjectManager<SimpleObject>)
     override fun createCounter(pos: Position): CounterLabelTrigger =
         ctx.add {
             CounterLabelTrigger(pos).apply {
@@ -497,7 +497,7 @@ class GameTimeGDValue : GDValue(type = ItemTriggerTermType.TIME, isValueGlobal =
 }
 
 class AttemptGDValue : GDValue(type = ItemTriggerTermType.ATTEMPTS, isValueGlobal = true), ValueWithCounter {
-    context(ctx: ObjectManager<in SimpleObject>)
+    context(ctx: ObjectManager<SimpleObject>)
     override fun createCounter(pos: Position): CounterLabelTrigger =
         ctx.add {
             CounterLabelTrigger(pos).apply {
@@ -509,21 +509,21 @@ class AttemptGDValue : GDValue(type = ItemTriggerTermType.ATTEMPTS, isValueGloba
 /**
  * See [ItemGDValue.setValue] for more info
  */
-context(ctx: ObjectManager<in SimpleObject>)
+context(ctx: ObjectManager<SimpleObject>)
 fun ItemGDValue.setValue(value: Float) =
     this.setValue(ctx, value)
 
 /**
  * See [ItemGDValue.setValue] for more info
  */
-context(ctx: ObjectManager<in SimpleObject>)
+context(ctx: ObjectManager<SimpleObject>)
 fun ItemGDValue.setValue(value: Int) =
     this.setValue(ctx, value)
 
 /**
  * See [ItemGDValue.setValue] for more info
  */
-context(ctx: ObjectManager<in SimpleObject>)
+context(ctx: ObjectManager<SimpleObject>)
 fun ItemGDValue.setValue(value: UInt) =
     this.setValue(ctx, value)
 

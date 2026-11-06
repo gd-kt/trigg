@@ -18,7 +18,7 @@ import kotlin.time.Duration
 import kotlin.time.DurationUnit
 
 @TriggDsl
-interface ScopedObjectAdder<Obj : GenericGdObject> {
+interface ScopedObjectAdder<in Obj : GenericGdObject> {
     /**
      * Adds at "compile time" an object to the final output.
      * If the object is a trigger, it will be set as [spawned][editor.objects.triggers.TriggerObject.setSpawned]
@@ -143,7 +143,7 @@ interface ScopedObjectAdder<Obj : GenericGdObject> {
  * @param delay the time after which the [group] will get spawned. It must be `>=0`
  * @return the created [SpawnTrigger]
  */
-fun ScopedObjectAdder<in SpawnTrigger>.spawn(group: Group, delay: Float = 0f): SpawnTrigger =
+fun ScopedObjectAdder<SpawnTrigger>.spawn(group: Group, delay: Float = 0f): SpawnTrigger =
     this.add {
         SpawnTrigger(this.getNextPos(), group.value, delay)
     }
@@ -154,7 +154,7 @@ fun ScopedObjectAdder<in SpawnTrigger>.spawn(group: Group, delay: Float = 0f): S
  * @param delay the time after which the [group] will get spawned. It must be `>=0`
  * @return the created [SpawnTrigger]
  */
-fun ScopedObjectAdder<in SpawnTrigger>.spawn(group: Group, delay: Duration): SpawnTrigger =
+fun ScopedObjectAdder<SpawnTrigger>.spawn(group: Group, delay: Duration): SpawnTrigger =
     this.spawn(group, delay.toFloat(DurationUnit.SECONDS))
 
 /**
@@ -166,7 +166,7 @@ fun ScopedObjectAdder<in SpawnTrigger>.spawn(group: Group, delay: Duration): Spa
  * @return the created [SpawnTrigger] used to spawn
  * @see spawnFunction
  */
-fun ScopedObjectAdder<*>.spawn(group: Group? = null, delay: Duration, spawner: ObjectManager<*>.() -> Unit) =
+fun <T : GenericGdObject> ScopedObjectAdder<T>.spawn(group: Group? = null, delay: Duration, spawner: ObjectManager<T>.() -> Unit) =
     this.spawn(group, delay.toFloat(DurationUnit.SECONDS), spawner)
 
 /**
@@ -180,7 +180,7 @@ fun ScopedObjectAdder<*>.spawn(group: Group? = null, delay: Duration, spawner: O
 fun ScopedObjectAdder<*>.spawnFunction(triggFunction: TriggFunctionType, canSpawnEarly: Boolean = true, delay: Duration): SpawnTrigger =
     this.spawnFunction(triggFunction, canSpawnEarly, delay.toFloat(DurationUnit.SECONDS))
 
-fun ScopedObjectAdder<in SimpleObject>.add(groupAdder: GroupAdder) =
+fun ScopedObjectAdder<SimpleObject>.add(groupAdder: GroupAdder) =
     this.add(groupAdder.collectedObjects)
 
 internal fun ObjectManager<SimpleObject>.defineFunctionHelper(functionContent: TriggFunctionType, triggFunctions: MutableMap<TriggFunctionType, TriggFunctionState>): UInt {

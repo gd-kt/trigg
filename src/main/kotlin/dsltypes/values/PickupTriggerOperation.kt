@@ -32,7 +32,7 @@ internal data class PickupTriggerOperation(val operationType: PickupOperationTyp
         }
     }
 
-    fun createPickupTrigger(ctx: ObjectManager<in PickupTrigger>): PickupTrigger {
+    fun createPickupTrigger(ctx: ObjectManager<PickupTrigger>): PickupTrigger {
         if (this.gdValue is ItemGDValue && this.gdValue.lastKnownValue != null) {
             when (this.operationType) {
                 PickupOperationType.ADDITION -> this.gdValue.lastKnownValue = this.gdValue.lastKnownValue!! + this.toEvaluateWith.toInt()
@@ -60,7 +60,7 @@ internal data class PickupTriggerOperation(val operationType: PickupOperationTyp
  * @param value the value to **add** to this [GDValue][ItemGDValue]
  * @return The [PickupTrigger] used to add [value] to this [GDValue][ItemGDValue]
  */
-fun ItemGDValue.add(ctx: ObjectManager<in PickupTrigger>, value: Int): PickupTrigger =
+fun ItemGDValue.add(ctx: ObjectManager<PickupTrigger>, value: Int): PickupTrigger =
     PickupTriggerOperation(PickupOperationType.ADDITION, this, value.toFloat()).createPickupTrigger(ctx)
 
 /**
@@ -69,7 +69,7 @@ fun ItemGDValue.add(ctx: ObjectManager<in PickupTrigger>, value: Int): PickupTri
  * @param value the value to **add** to this [GDValue][ItemGDValue]
  * @return The [PickupTrigger] used to add [value] to this [GDValue][ItemGDValue]
  */
-context(ctx: ObjectManager<in PickupTrigger>)
+context(ctx: ObjectManager<PickupTrigger>)
 fun ItemGDValue.add(value: Int): PickupTrigger =
     this.add(ctx, value)
 
@@ -80,7 +80,7 @@ fun ItemGDValue.add(value: Int): PickupTrigger =
  * @param value the value to **multiply** by this [GDValue][ItemGDValue]
  * @return The [PickupTrigger] used to multiply [value] by this [GDValue][ItemGDValue]
  */
-fun ItemGDValue.multiply(ctx: ObjectManager<in PickupTrigger>, value: Float): PickupTrigger =
+fun ItemGDValue.multiply(ctx: ObjectManager<PickupTrigger>, value: Float): PickupTrigger =
     PickupTriggerOperation(PickupOperationType.MULTIPLICATION, this, value).createPickupTrigger(ctx)
 
 /**
@@ -89,7 +89,7 @@ fun ItemGDValue.multiply(ctx: ObjectManager<in PickupTrigger>, value: Float): Pi
  * @param value the value to **multiply** by this [GDValue][ItemGDValue]
  * @return The [PickupTrigger] used to multiply [value] by this [GDValue][ItemGDValue]
  */
-context(ctx: ObjectManager<in PickupTrigger>)
+context(ctx: ObjectManager<PickupTrigger>)
 fun ItemGDValue.multiply(value: Float): PickupTrigger =
     this.multiply(ctx, value)
 
@@ -100,7 +100,7 @@ fun ItemGDValue.multiply(value: Float): PickupTrigger =
  * @param value the value to **divide** by this [GDValue][ItemGDValue]
  * @return The [PickupTrigger] used to divide [value] by this [GDValue][ItemGDValue]
  */
-fun ItemGDValue.divide(ctx: ObjectManager<in PickupTrigger>, value: Float): PickupTrigger =
+fun ItemGDValue.divide(ctx: ObjectManager<PickupTrigger>, value: Float): PickupTrigger =
     PickupTriggerOperation(PickupOperationType.DIVISION, this, value).createPickupTrigger(ctx)
 
 /**
@@ -109,6 +109,6 @@ fun ItemGDValue.divide(ctx: ObjectManager<in PickupTrigger>, value: Float): Pick
  * @param value the value to **divide** by this [GDValue][ItemGDValue]
  * @return The [PickupTrigger] used to divide [value] by this [GDValue][ItemGDValue]
  */
-context(ctx: ObjectManager<in PickupTrigger>)
+context(ctx: ObjectManager<PickupTrigger>)
 fun ItemGDValue.divide(value: Float): PickupTrigger =
     this.divide(ctx, value)
