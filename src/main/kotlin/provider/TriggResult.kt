@@ -12,6 +12,10 @@ data class TriggResult(
 ) {
     val rawString: String
         get() = this.triggProvider.asRawString()
+
+    override fun toString(): String {
+        return "TriggResult(rawString = \"${this.rawString}\")"
+    }
 }
 
 fun WSLiveEditor.addTriggResult(triggResult: TriggResult) =
