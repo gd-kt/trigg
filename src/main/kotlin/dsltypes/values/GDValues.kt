@@ -108,45 +108,68 @@ open class GDValue(
 ) {
     private fun createCompareTrigger(other: GDValue, compType: ItemCompareComparisonType): ComparisonCreator =
         ComparisonCreator@{ ctx ->
+            // This part is used to fix when the user
+            // compares a constant to something else
+            // but that the constant is given as the
+            // first term. In vanilla gd this cannot be done.
+            // So we swap the values if needed
+            val shouldSwapValues = this is NumberGDValue<*> && other !is NumberGDValue<*> // TODO: test
+            val actualCompType: ItemCompareComparisonType =
+                if (shouldSwapValues && compType != ItemCompareComparisonType.EQUAL && compType != ItemCompareComparisonType.NOT_EQUAL)
+                    compType.opposite()
+                else
+                    compType
+            
+            val actualThis = if (shouldSwapValues)
+                other
+            else
+                this
+
+            val actualOther = if (shouldSwapValues)
+                this
+            else
+                other
+
+
             // When this is the case we can precompute
             // the outcome since it's a simple if check
             if (this.type == other.type && this.isValueGlobal && other.isValueGlobal) {
                 val dummyValue = 0.0
-                val a = if (this is NumberGDValue<*>)
-                    this.expectedValue.toDouble()
+                val a = if (actualThis is NumberGDValue<*>)
+                    actualThis.expectedValue.toDouble()
                 else
                     dummyValue
 
-                val b = if (other is NumberGDValue<*>)
-                    other.expectedValue.toDouble()
+                val b = if (actualOther is NumberGDValue<*>)
+                    actualOther.expectedValue.toDouble()
                 else
                     dummyValue
 
-                val inlinedBranch = Comparison.InlinedBranch.fromEvaluation(compType.compare(a, b))
-                return@ComparisonCreator Comparison(inlinedBranch = inlinedBranch, operator = compType)
+                val inlinedBranch = Comparison.InlinedBranch.fromEvaluation(actualCompType.compare(a, b))
+                return@ComparisonCreator Comparison(inlinedBranch = inlinedBranch, operator = actualCompType)
             }
 
             val itemCompTrigger = ItemCompareTrigger(ctx.getNextPos()).apply {
-                comparisonType.value = compType
+                comparisonType.value = actualCompType
 
 
-                firstTermType.value = this@GDValue.type
-                firstTermRoundingType.value = this@GDValue.roundingType
-                firstTermAbsNeg.value = this@GDValue.absNegType
-                if (this@GDValue is WithIdGDValue)
-                    firstItemID.value = this@GDValue.getItemID(ctx)
+                firstTermType.value = actualThis.type
+                firstTermRoundingType.value = actualThis.roundingType
+                firstTermAbsNeg.value = actualThis.absNegType
+                if (actualThis is WithIdGDValue)
+                    firstItemID.value = actualThis.getItemID(ctx)
 
-                secondTermRoundingType.value = other.roundingType
-                secondTermAbsNeg.value = other.absNegType
-                secondTermType.value = other.type
-                if (other is WithIdGDValue)
-                    secondItemID.value = other.getItemID(ctx)
-
-                if (other is NumberGDValue<*>)
-                    secondTermFactor.value = other.value.toFloat()
+                secondTermRoundingType.value = actualOther.roundingType
+                secondTermAbsNeg.value = actualOther.absNegType
+                secondTermType.value = actualOther.type
+                if (actualOther is WithIdGDValue) {
+                    secondItemID.value = actualOther.getItemID(ctx)
+                } else if (actualOther is NumberGDValue<*>) {
+                    secondTermFactor.value = actualOther.value.toFloat()
+                }
             }
 
-            Comparison(itemCompTrigger, operator = compType)
+            Comparison(itemCompTrigger, operator = actualCompType)
         }
 
     /**
@@ -590,6 +613,16 @@ fun ObjectManager<SimpleObject>.item(itemID: UInt? = null, value: UInt): ItemGDV
  * @param timerID the **non-optional** timerID to set for the [TimerGDValue]
  */
 fun timer(timerID: UInt) = TimerGDValue(timerID)
+
+fun ItemCompareComparisonType.opposite(): ItemCompareComparisonType =
+    when (this) {
+        ItemCompareComparisonType.EQUAL -> ItemCompareComparisonType.NOT_EQUAL
+        ItemCompareComparisonType.GREATER_THAN -> ItemCompareComparisonType.LESS_THAN_EQUAL
+        ItemCompareComparisonType.GREATER_THAN_EQUAL -> ItemCompareComparisonType.LESS_THAN
+        ItemCompareComparisonType.LESS_THAN -> ItemCompareComparisonType.GREATER_THAN_EQUAL
+        ItemCompareComparisonType.LESS_THAN_EQUAL -> ItemCompareComparisonType.GREATER_THAN
+        ItemCompareComparisonType.NOT_EQUAL -> ItemCompareComparisonType.EQUAL
+    }
 
 /**
  * Creates a [Points Value][PointsGDValue].

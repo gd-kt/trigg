@@ -46,16 +46,23 @@ private class ComparisonTests {
 
     @Test
     fun comparisonOperatorsTest() {
-        val a = const(Random.nextUInt())
-        val c = item(5u)
+        val a = item(5u)
+        val b = const(Random.nextUInt())
 
         val ctx = TriggProvider()
-        Assertions.assertEquals(ItemCompareComparisonType.EQUAL, ctx.getComp(a equalsTo c).operator)
-        Assertions.assertEquals(ItemCompareComparisonType.NOT_EQUAL, ctx.getComp(a notEqualTo c).operator)
-        Assertions.assertEquals(ItemCompareComparisonType.GREATER_THAN, ctx.getComp(a greaterThan c).operator)
-        Assertions.assertEquals(ItemCompareComparisonType.GREATER_THAN_EQUAL, ctx.getComp(a greaterThanEqual c).operator)
-        Assertions.assertEquals(ItemCompareComparisonType.LESS_THAN, ctx.getComp(a lessThan c).operator)
-        Assertions.assertEquals(ItemCompareComparisonType.LESS_THAN_EQUAL, ctx.getComp(a lessThanEqual c).operator)
+        Assertions.assertEquals(ItemCompareComparisonType.EQUAL, ctx.getComp(a equalsTo b).operator)
+        Assertions.assertEquals(ItemCompareComparisonType.NOT_EQUAL, ctx.getComp(a notEqualTo b).operator)
+        Assertions.assertEquals(ItemCompareComparisonType.GREATER_THAN, ctx.getComp(a greaterThan b).operator)
+        Assertions.assertEquals(ItemCompareComparisonType.GREATER_THAN_EQUAL, ctx.getComp(a greaterThanEqual b).operator)
+        Assertions.assertEquals(ItemCompareComparisonType.LESS_THAN, ctx.getComp(a lessThan b).operator)
+        Assertions.assertEquals(ItemCompareComparisonType.LESS_THAN_EQUAL, ctx.getComp(a lessThanEqual b).operator)
+
+        Assertions.assertEquals(ItemCompareComparisonType.EQUAL, ctx.getComp(b equalsTo a).operator)
+        Assertions.assertEquals(ItemCompareComparisonType.NOT_EQUAL, ctx.getComp(b notEqualTo a).operator)
+        Assertions.assertEquals(ItemCompareComparisonType.GREATER_THAN.opposite(), ctx.getComp(b greaterThan a).operator)
+        Assertions.assertEquals(ItemCompareComparisonType.GREATER_THAN_EQUAL.opposite(), ctx.getComp(b greaterThanEqual a).operator)
+        Assertions.assertEquals(ItemCompareComparisonType.LESS_THAN.opposite(), ctx.getComp(b lessThan a).operator)
+        Assertions.assertEquals(ItemCompareComparisonType.LESS_THAN_EQUAL.opposite(), ctx.getComp(b lessThanEqual a).operator)
     }
 }
 
