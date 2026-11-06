@@ -91,7 +91,7 @@ interface ValueWithCounter {
  *
  * **Abs/Neg:**
  * - [abs()][abs]
- * - [negative()][negative]
+ * - [negate()][negate]
  *
  * @property roundingType the type of the rounding applied to the value at runtime
  * @property absNegType the "abs/neg" type applied to the value at runtime
@@ -597,7 +597,7 @@ fun constFloat(value: Number) =
     FloatGDValue(value.toFloat())
 
 
-fun <Val : GDValue> negative(gdValue: Val): Val =
+fun <Val : GDValue> negate(gdValue: Val): Val =
     gdValue.apply {
         absNegType = ItemTriggerAbsNeg.NEGATIVE
     }

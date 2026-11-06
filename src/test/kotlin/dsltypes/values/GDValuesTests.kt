@@ -32,7 +32,7 @@ private class GDValuesTests {
             when (this) {
                 ItemTriggerAbsNeg.NONE -> { value -> value }
                 ItemTriggerAbsNeg.ABS -> { value -> abs(value) }
-                ItemTriggerAbsNeg.NEGATIVE -> { value -> negative(value) }
+                ItemTriggerAbsNeg.NEGATIVE -> { value -> negate(value) }
             }
 
         for (roundingType in ItemTriggerRoundingType.entries) {
@@ -198,7 +198,7 @@ private class GDValuesTests {
     fun setValueTest() {
         val ctx = TriggProvider()
 
-        val value = negative(round(item()))
+        val value = negate(round(item()))
 
         val itemEditTrigger: ItemEditTrigger
         ctx.apply {
