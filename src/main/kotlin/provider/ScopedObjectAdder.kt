@@ -61,7 +61,7 @@ interface ScopedObjectAdder<Obj : GenericGdObject> {
     fun spawn(group: Group? = null, delay: Float = 0f, spawner: ObjectManager<Obj>.() -> Unit): SpawnTrigger
 
     /**
-     * Defines a [TriggFunction] for the **global [trigg instance][TriggProvider]**.
+     * Defines a [TriggFunction] to the **global [trigg instance][TriggProvider]**.
      * To call it you can then use [spawnFunction].
      *
      * It is defined like so:
@@ -115,8 +115,8 @@ interface ScopedObjectAdder<Obj : GenericGdObject> {
      * }
      * ```
      *
-     * Although, if you spawn a function without defining it, an [IllegalStateException]
-     * exception will be thrown.
+     * Although, if [canSpawnEarly] is `false` and you spawn the given [TriggFunction] without defining it,
+     * an [IllegalStateException] exception will be thrown.
      * @param triggFunction the function to spawn
      * @param canSpawnEarly if the function can be spawned even if it has not been defined yet
      * @param delay the time it takes to execute the given [function][triggFunction] after executing this
