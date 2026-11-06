@@ -539,11 +539,28 @@ fun item(itemID: UInt? = null) = ItemGDValue(itemID)
  * @param itemID the optional itemID to set for the [ItemGDValue].
  *               If `null`, a new itemID will get [acquired][GroupHandler.acquireLabel]
  * @param value the value to set
+ * @param setValue if the value should be set inside Geometry Dash has well.
+ *                 If set to `null` then another behavior occurs.
+ *                 If [value] is equal to `0` (aka the default value for a GDValue)
+ *                 then it won't set this [GDValue][ItemGDValue]'s value
  * @see ItemGDValue.setValue
  */
-fun ObjectManager<SimpleObject>.item(itemID: UInt? = null, value: Float): ItemGDValue {
+fun ObjectManager<SimpleObject>.item(itemID: UInt? = null, value: Float, setValue: Boolean? = null): ItemGDValue {
     val gdValue = item(itemID)
-    gdValue.setValue(this, value)
+    if (setValue == true) {
+        gdValue.setValue(this, value)
+    } else if (setValue == false) {
+        gdValue.lastKnownValue = gdValue.applyModifiers(value).toInt()
+    } else {
+        // Nullable boolean ?
+        // This is just like dreamberd !!
+        // True, false and maybe !
+        if (value == 0f) {
+            gdValue.lastKnownValue = 0
+        } else {
+            gdValue.setValue(this, value)
+        }
+    }
 
     return gdValue
 }
