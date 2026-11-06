@@ -3,6 +3,7 @@ package generator
 import editor.objects.GenericGdObject
 import editor.objects.SimpleObject
 import provider.ObjectManager
+import provider.TriggProvider
 import kotlin.reflect.KClass
 import kotlin.reflect.KFunction
 import kotlin.reflect.KTypeProjection
@@ -10,6 +11,11 @@ import kotlin.reflect.KVariance
 import kotlin.reflect.full.createType
 import kotlin.reflect.full.starProjectedType
 
+/**
+ * The type of a [TriggFunction]
+ * @see TriggFunction
+ * @see TriggFunction.validate
+ */
 typealias TriggFunctionType = KFunction<Unit>
 
 /**
@@ -31,6 +37,7 @@ typealias TriggFunctionType = KFunction<Unit>
  *
  * It is defined like so:
  * ```kotlin
+ * // It must EXACTLY respect this signature
  * @TriggFunction
  * fun myFunc(ctx: ScopedObjectAdder<SimpleObject>) {
  *    ctx.apply {
@@ -71,6 +78,10 @@ typealias TriggFunctionType = KFunction<Unit>
 @Target(allowedTargets = [AnnotationTarget.FUNCTION])
 annotation class TriggFunction {
     companion object {
+        /**
+         * Validates a given [TriggFunction]
+         * @throws IllegalStateException if the [TriggFunction] is not valid
+         */
         fun validate(triggFunction: TriggFunctionType, objectClazz: KClass<out GenericGdObject> = SimpleObject::class) {
             require(triggFunction.parameters.size == 1) { "A TriggFunction only accepts 1 parameter of type ObjectManger<SimpleObject> !" }
 
@@ -79,6 +90,17 @@ annotation class TriggFunction {
             require(triggFunction.parameters.first().type == objectManagerType) { "A TriggFunction only accepts 1 parameter of type ObjectManger<SimpleObject> !" }
 
             require(triggFunction.annotations.contains(TriggFunction())) { "A TriggFunction must be annotated with @TriggFunction" }
+        }
+
+        /**
+         * Gets the group ID of any given [TriggFunction]
+         * @return the [TriggFunction]'s group
+         */
+        fun getGroupID(triggFunc: TriggFunctionType): UInt {
+            val triggProvider = TriggProvider.getInstance()
+
+            check(triggFunc in triggProvider.triggFunctions) { "Cannot get the ID of a function if it has not been called/defined yet" }
+            return triggProvider.triggFunctions[triggFunc]!!.group.value
         }
     }
 }

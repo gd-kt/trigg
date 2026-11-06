@@ -66,6 +66,28 @@ internal class TriggFunctionTests {
 
 
     @Test
+    fun getIdTest() {
+        Assertions.assertThrows(IllegalStateException::class.java) {
+            // it should throw because no ctx has been defined yet
+            TriggFunction.getGroupID(::validTriggFunction)
+        }
+
+        val ctx = TriggProvider()
+        TriggProvider.INSTANCE = ctx
+
+        Assertions.assertThrows(IllegalStateException::class.java) {
+            // it should throw because ::validTriggFunction hasn't been called/defined
+            TriggFunction.getGroupID(::validTriggFunction)
+        }
+
+        ctx.apply {
+            defineFunction(::validTriggFunction)
+        }
+
+        Assertions.assertEquals(ctx.triggFunctions[::validTriggFunction]!!.group.value, TriggFunction.getGroupID(::validTriggFunction))
+    }
+
+    @Test
     fun functionDefineTest() {
         val ctx = TriggProvider()
         ctx.apply {
