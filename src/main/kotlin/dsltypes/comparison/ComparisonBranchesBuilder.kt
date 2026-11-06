@@ -57,7 +57,7 @@ class ComparisonBranchesBuilder(val ctx: ObjectManager<SimpleObject>, comp: Comp
      * Sets the `then` branch of this comparison to be a given [TriggFunction]
      * @param triggFunction the [TriggFunction] to spawn when the condition succeeds
      */
-    infix fun then(triggFunction: TriggFunctionType): ComparisonBranchesBuilder =
+    infix fun thenTriggFunction(triggFunction: TriggFunctionType): ComparisonBranchesBuilder =
         this.then(TriggFunction.getGroupID(triggFunction).group)
 
     /**
@@ -104,7 +104,7 @@ class ComparisonBranchesBuilder(val ctx: ObjectManager<SimpleObject>, comp: Comp
      * Sets the `else` branch of this comparison to be a given [TriggFunction]
      * @param triggFunction the [TriggFunction] to spawn when the condition fails
      */
-    infix fun fail(triggFunction: TriggFunctionType): ComparisonBranchesBuilder =
+    infix fun failTriggFunction(triggFunction: TriggFunctionType): ComparisonBranchesBuilder =
         this.fail(TriggFunction.getGroupID(triggFunction).group)
 
 
@@ -184,7 +184,7 @@ class ComparisonBranchesBuilder(val ctx: ObjectManager<SimpleObject>, comp: Comp
      * @param triggFunction the [TriggFunction] to spawn when this branch gets executed
      */
     fun elseif(elseifComp: ComparisonCreator, triggFunction: TriggFunctionType) =
-        this.elseifHelper(elseifComp) { it.then(triggFunction) }
+        this.elseifHelper(elseifComp) { it.thenTriggFunction(triggFunction) }
 
     /**
      * Builds the comparison of this [ComparisonBranchesBuilder]
