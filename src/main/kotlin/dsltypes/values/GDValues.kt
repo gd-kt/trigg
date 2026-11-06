@@ -96,19 +96,31 @@ interface ValueWithCounter {
  * @property roundingType the type of the rounding applied to the value at runtime
  * @property absNegType the "abs/neg" type applied to the value at runtime
  * @property type the type of the value, it's what is stored
+ * @property isValueGlobal if this [GDValue]'s value is stored globally.
+ * For example an [AttemptGDValue] stores 1 global value: the attempt count.
+ * But an [ItemGDValue] stores a value per ID, not 1 global value.
  */
 open class GDValue(
     var roundingType: ItemTriggerRoundingType = ItemTriggerRoundingType.NONE,
     var absNegType: ItemTriggerAbsNeg = ItemTriggerAbsNeg.NONE,
+    val isValueGlobal: Boolean = false,
     val type: ItemTriggerTermType
 ) {
     private fun createCompareTrigger(other: GDValue, compType: ItemCompareComparisonType): ComparisonCreator =
         ComparisonCreator@{ ctx ->
             // When this is the case we can precompute
             // the outcome since it's a simple if check
-            if (this is NumberGDValue<*> && other is NumberGDValue<*>) {
-                val a = this.expectedValue.toDouble()
-                val b = other.expectedValue.toDouble()
+            if (this.type == other.type && this.isValueGlobal && other.isValueGlobal) {
+                val dummyValue = 0.0
+                val a = if (this is NumberGDValue<*>)
+                    this.expectedValue.toDouble()
+                else
+                    dummyValue
+
+                val b = if (other is NumberGDValue<*>)
+                    other.expectedValue.toDouble()
+                else
+                    dummyValue
 
                 val inlinedBranch = Comparison.InlinedBranch.fromEvaluation(compType.compare(a, b))
                 return@ComparisonCreator Comparison(inlinedBranch = inlinedBranch, operator = compType)
@@ -218,7 +230,7 @@ open class GDValue(
         Objects.hash(this.roundingType, this.absNegType, this.type)
 }
 
-abstract class NumberGDValue<N : Number>(val value: N, type: ItemTriggerTermType = ItemTriggerTermType.UNSET) : GDValue(type = type) {
+abstract class NumberGDValue<N : Number>(val value: N, type: ItemTriggerTermType = ItemTriggerTermType.UNSET) : GDValue(type = type, isValueGlobal = true) {
     protected abstract fun numberToN(numInput: Number): N
 
     /**
@@ -394,11 +406,21 @@ fun GDValue.resetModifiers() {
 
 class ItemGDValue(itemID: UInt? = null) : WithIdGDValue(itemID, type = ItemTriggerTermType.ITEM) {
     /**
-     * The last known value manually set **known** by trigg.
-     * This doesn't mean that this reflects the true value in **ANY WAY**
+     * The last known **manually set** value known by trigg.
+     * This doesn't mean that this reflects the true value in **ANY WAY**.
+     *
+     * ## Behavior
+     *
+     * The only assumption with [this][lastKnownValue] is that
+     * the value does not get mutated in a way that trigg can't see it.
+     *
+     * For example if you [set the value][setValue] of this [GDValue][ItemGDValue]
+     * then [lastKnownValue] will get modified.
+     *
+     * However, if you [add] a value to this [GDValue][ItemGDValue],
+     * [lastKnownValue] will not change unless it is **non-null**.
      */
     var lastKnownValue: Int? = null
-        private set
 
     context(ctx: ObjectManager<in SimpleObject>)
     override fun createCounter(pos: Position): CounterLabelTrigger =
@@ -446,7 +468,7 @@ class TimerGDValue(timerID: UInt) : WithIdGDValue(timerID, type = ItemTriggerTer
         }
 }
 
-class PointsGDValue : GDValue(type = ItemTriggerTermType.POINTS), ValueWithCounter {
+class PointsGDValue : GDValue(type = ItemTriggerTermType.POINTS, isValueGlobal = true), ValueWithCounter {
     context(ctx: ObjectManager<in SimpleObject>)
     override fun createCounter(pos: Position): CounterLabelTrigger =
         ctx.add {
@@ -456,7 +478,7 @@ class PointsGDValue : GDValue(type = ItemTriggerTermType.POINTS), ValueWithCount
         }
 }
 
-class GameTimeGDValue : GDValue(type = ItemTriggerTermType.TIME), ValueWithCounter {
+class GameTimeGDValue : GDValue(type = ItemTriggerTermType.TIME, isValueGlobal = true), ValueWithCounter {
     context(ctx: ObjectManager<in SimpleObject>)
     override fun createCounter(pos: Position): CounterLabelTrigger =
         ctx.add {
@@ -466,7 +488,7 @@ class GameTimeGDValue : GDValue(type = ItemTriggerTermType.TIME), ValueWithCount
         }
 }
 
-class AttemptGDValue : GDValue(type = ItemTriggerTermType.ATTEMPTS), ValueWithCounter {
+class AttemptGDValue : GDValue(type = ItemTriggerTermType.ATTEMPTS, isValueGlobal = true), ValueWithCounter {
     context(ctx: ObjectManager<in SimpleObject>)
     override fun createCounter(pos: Position): CounterLabelTrigger =
         ctx.add {
@@ -495,6 +517,11 @@ fun ItemGDValue.setValue(value: UInt) =
  * @param itemID the optional itemID to set for the [ItemGDValue].
  *               If `null`, a new itemID will get [acquired][GroupHandler.acquireLabel]
  */
+// TODO: If an ItemGDValue has been created, return
+// a singleton instance of the ItemGDValue for this itemID
+//
+// if we're giving it a value (ObjectManager<SimpleObject>.item(itemID: UInt? = null, value: Number))
+// then it just sets the value and return the singleton value
 fun item(itemID: UInt? = null) = ItemGDValue(itemID)
 
 /**
@@ -505,7 +532,7 @@ fun item(itemID: UInt? = null) = ItemGDValue(itemID)
  * @see ItemGDValue.setValue
  */
 fun ObjectManager<SimpleObject>.item(itemID: UInt? = null, value: Number): ItemGDValue {
-    val gdValue = ItemGDValue(itemID)
+    val gdValue = item(itemID)
     gdValue.setValue(this, value)
 
     return gdValue

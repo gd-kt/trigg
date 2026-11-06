@@ -133,6 +133,41 @@ private class CompBranchesBuilderTests {
     }
 
     @Test
+    fun inlinedThenBranchOtherValueTest() {
+        val ctx = OldEntrypointTriggProvider()
+        TriggProvider.INSTANCE = ctx
+
+        val compInline: Comparison
+        ctx.entrypoint(execute = false) {
+            compInline = comp(attempts() greaterThanEqual attempts()) {
+                then {
+                    add { SimpleObject(1u, Pos.ZERO) }
+                    add { TimewarpTrigger(Pos.ZERO) }
+                }
+            }
+        }
+
+        Assertions.assertNull(compInline.createObject(ctx))
+
+        Assertions.assertTrue {
+            ctx.addedObjects
+                .filterIsInstance<SimpleObject>()
+                .all { it.groups.contains(ctx.init.groupSpace.getEntrypoint(ctx).value) }
+        }
+
+        Assertions.assertEquals(2, ctx.addedObjects.size)
+        Assertions.assertEquals(
+            0,
+            ctx.addedObjects
+                .filterIsInstance<ItemCompareTrigger>()
+                .size
+        )
+
+        Assertions.assertEquals(NULL_GROUP, compInline.obj.failedSpawnID.getOrThrow())
+        Assertions.assertEquals(NULL_GROUP, compInline.obj.succeededSpawnID.getOrThrow())
+    }
+
+    @Test
     fun elseBranchTest() {
         val ctx = OldEntrypointTriggProvider()
         TriggProvider.INSTANCE = ctx
@@ -166,6 +201,34 @@ private class CompBranchesBuilderTests {
         TriggProvider.INSTANCE = ctx
 
         val compInline = ctx.comp(const(12) greaterThanEqual const(15)) {
+            then {
+                add { SimpleObject(1u, Pos.ZERO) }
+                add { TimewarpTrigger(Pos.ZERO) }
+            } fail {
+                add { SimpleObject(1u, Pos.ZERO) }
+                add { TimewarpTrigger(Pos.ZERO) }
+                add { SpawnTrigger(Pos.ZERO) }
+            }
+        }
+
+        Assertions.assertEquals(3, ctx.addedObjects.size)
+        Assertions.assertEquals(
+            0,
+            ctx.addedObjects
+                .filterIsInstance<ItemCompareTrigger>()
+                .size
+        )
+
+        Assertions.assertEquals(NULL_GROUP, compInline.obj.failedSpawnID.getOrThrow())
+        Assertions.assertEquals(NULL_GROUP, compInline.obj.succeededSpawnID.getOrThrow())
+    }
+
+    @Test
+    fun inlineElseBranchOtherValueTest() {
+        val ctx = OldEntrypointTriggProvider()
+        TriggProvider.INSTANCE = ctx
+
+        val compInline = ctx.comp(attempts() lessThan attempts()) {
             then {
                 add { SimpleObject(1u, Pos.ZERO) }
                 add { TimewarpTrigger(Pos.ZERO) }
