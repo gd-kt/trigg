@@ -431,22 +431,30 @@ class ItemGDValue(itemID: UInt? = null) : WithIdGDValue(itemID, type = ItemTrigg
      * The modifiers applied to this [GDValue][WithIdGDValue] will
      * be applied to the given [value]
      * @param value The value to set this value to.
-     *              It is converted into a [Float].
-     *              But no matter what geometry dash will floor the result into an [Int] unless
+     *              No matter what geometry dash will **floor** the result into an [Int] unless
      *              the [roundingType] is changed
      */
-    fun setValue(ctx: ObjectManager<in SimpleObject>, value: Number): ItemEditTrigger {
+    fun setValue(ctx: ObjectManager<in SimpleObject>, value: Float): ItemEditTrigger {
         this.lastKnownValue = value.toInt()
         return ctx.add {
             ItemEditTrigger(ctx.getNextPos()).apply {
                 resultItemID.value = this@ItemGDValue.getItemID(ctx)
-                secondTermFactor.value = value.toFloat()
+                secondTermFactor.value = value
 
                 firstTermAbsNeg.value = this@ItemGDValue.absNegType
                 firstTermRoundingType.value = this@ItemGDValue.roundingType
             }
         }
     }
+
+    /**
+     * Sets the value of this [GDValue][WithIdGDValue] when this executes.
+     * The modifiers applied to this [GDValue][WithIdGDValue] will
+     * be applied to the given [value]
+     * @param value The value to set this value to
+     */
+    fun setValue(ctx: ObjectManager<in SimpleObject>, value: Int): ItemEditTrigger =
+        this.setValue(ctx, value.toFloat())
 
     /**
      * Sets the value of this [GDValue][WithIdGDValue] when this executes.
@@ -502,7 +510,14 @@ class AttemptGDValue : GDValue(type = ItemTriggerTermType.ATTEMPTS, isValueGloba
  * See [ItemGDValue.setValue] for more info
  */
 context(ctx: ObjectManager<in SimpleObject>)
-fun ItemGDValue.setValue(value: Number) =
+fun ItemGDValue.setValue(value: Float) =
+    this.setValue(ctx, value)
+
+/**
+ * See [ItemGDValue.setValue] for more info
+ */
+context(ctx: ObjectManager<in SimpleObject>)
+fun ItemGDValue.setValue(value: Int) =
     this.setValue(ctx, value)
 
 /**
@@ -526,12 +541,32 @@ fun item(itemID: UInt? = null) = ItemGDValue(itemID)
  * @param value the value to set
  * @see ItemGDValue.setValue
  */
-fun ObjectManager<SimpleObject>.item(itemID: UInt? = null, value: Number): ItemGDValue {
+fun ObjectManager<SimpleObject>.item(itemID: UInt? = null, value: Float): ItemGDValue {
     val gdValue = item(itemID)
     gdValue.setValue(this, value)
 
     return gdValue
 }
+
+/**
+ * Creates an [ItemGDValue] with an optional itemID and a value
+ * @param itemID the optional itemID to set for the [ItemGDValue].
+ *               If `null`, a new itemID will get [acquired][GroupHandler.acquireLabel]
+ * @param value the value to set
+ * @see ItemGDValue.setValue
+ */
+fun ObjectManager<SimpleObject>.item(itemID: UInt? = null, value: Int): ItemGDValue =
+    this.item(itemID, value.toFloat())
+
+/**
+ * Creates an [ItemGDValue] with an optional itemID and a value
+ * @param itemID the optional itemID to set for the [ItemGDValue].
+ *               If `null`, a new itemID will get [acquired][GroupHandler.acquireLabel]
+ * @param value the value to set
+ * @see ItemGDValue.setValue
+ */
+fun ObjectManager<SimpleObject>.item(itemID: UInt? = null, value: UInt): ItemGDValue =
+    this.item(itemID, value.toFloat())
 
 /**
  * Creates an [TimerGDValue] with a timerID
@@ -568,16 +603,16 @@ fun attempts() = AttemptGDValue()
  * Creates a [IntGDValue] from a constant number.
  *
  * To create a constant float value, use [constFloat].
- * @param value the value to store. It always gets **converted to an [Int]**
+ * @param value the value to store
  * @return the created [IntGDValue] from the given [value]
  * @see constFloat
  */
-fun const(value: Number) =
-    IntGDValue(value.toInt())
+fun const(value: Int) =
+    IntGDValue(value)
 
 /**
  * Creates a [IntGDValue] from a constant number.
- * @param value the value to store. It always gets **converted to an [Int]**
+ * @param value the value to store
  * @return the created [IntGDValue] from the given [value]
  */
 fun const(value: UInt) =
@@ -589,12 +624,12 @@ fun const(value: UInt) =
  * GD doesn't store floats. This is only usable for comparisons.
  *
  * To create a constant integer value, use [const].
- * @param value the value to store. It always **gets converted to an [Float]**
+ * @param value the value to store
  * @return the created [FloatGDValue] from the given [value]
  * @see const
  */
-fun constFloat(value: Number) =
-    FloatGDValue(value.toFloat())
+fun constFloat(value: Float) =
+    FloatGDValue(value)
 
 
 fun <Val : GDValue> negate(gdValue: Val): Val =
