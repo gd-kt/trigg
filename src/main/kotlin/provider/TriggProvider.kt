@@ -280,14 +280,13 @@ class TriggProvider internal constructor(): ObjectManager<SimpleObject>, RawStri
 }
 
 // TODO: Link doc in KDoc
-// TODO: Return new class containing trigg instance
 /**
  * The first function used in any trigg script.
  * It creates a [TriggProvider] which is then used to add
  * objects, do comparisons, etc...
  */
 @OptIn(ExperimentalContracts::class)
-fun trigg(triggBuilder: TriggProvider.() -> Unit): String {
+fun trigg(triggBuilder: TriggProvider.() -> Unit): TriggResult {
     contract {
         callsInPlace(triggBuilder, InvocationKind.EXACTLY_ONCE)
     }
@@ -310,5 +309,5 @@ fun trigg(triggBuilder: TriggProvider.() -> Unit): String {
             it.removeObjects(trigg.init.commonGroup.value)
         }
 
-    return trigg.asRawString()
+    return TriggResult(trigg)
 }
