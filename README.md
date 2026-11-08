@@ -6,7 +6,7 @@
 - [ ] Icon
 - Checklist:
   - [x] Comparisons
-  - [ ] Loops (ex: `loop(delay = 0.5.seconds)`)
-  - [ ] for-loops
-  - [ ] while-loops
+  - [x] Loops (ex: `loop(delay = 0.5.seconds)`)
+  - [x] for-loops
+  - [x] while-loops
   - [ ] Random
