@@ -27,7 +27,7 @@ import kotlin.contracts.contract
  */
 class GroupAdder(
     private val context: ObjectManager<SimpleObject>,
-    val group: UInt = NULL_GROUP,
+    override val group: UInt = NULL_GROUP,
     val addObjectsToContext: Boolean = true
 ): ObjectManager<SimpleObject> {
     init {

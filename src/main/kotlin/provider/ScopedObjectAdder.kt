@@ -8,6 +8,7 @@ import editor.objects.SimpleObject
 import editor.objects.data.Pos
 import editor.objects.triggers.misc.SpawnTrigger
 import editor.objects.triggers.setSpawned
+import editor.rawstring.property.NULL_GROUP
 import generator.GroupAdder
 import generator.TriggFunction
 import generator.TriggFunctionType
@@ -19,6 +20,15 @@ import kotlin.time.DurationUnit
 
 @TriggDsl
 interface ScopedObjectAdder<in Obj : GenericGdObject> {
+    /**
+     * The group to assign to all the objects in this [ScopedObjectAdder].
+     * It is to the implementation to decide is this should get used.
+     *
+     * By default, it returns [NULL_GROUP], meaning no group will actually get assigned.
+     */
+    val group: UInt
+        get() = NULL_GROUP
+
     /**
      * Adds at "compile time" an object to the final output.
      * If the object is a trigger, it will be set as [spawned][editor.objects.triggers.TriggerObject.setSpawned]
