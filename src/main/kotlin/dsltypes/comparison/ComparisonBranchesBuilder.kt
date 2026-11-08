@@ -9,14 +9,13 @@ import generator.TriggFunction
 import generator.TriggFunctionType
 import generator.onlyGroup
 import provider.ObjectManager
-import provider.WrappedObjectManager
 
 /**
  * A trigg dsl class used to build the branches of a [Comparison].
  * To create a [ComparisonBranchesBuilder], use [ObjectManager.comp]
  */
 @TriggDsl
-class ComparisonBranchesBuilder(val ctx: ObjectManager<SimpleObject>, comp: ComparisonCreator): WrappedObjectManager<SimpleObject>(ctx) {
+class ComparisonBranchesBuilder(val ctx: ObjectManager<SimpleObject>, comp: ComparisonCreator) {
     private val comp = comp(this.ctx)
     private var latestCompBranch: Comparison = this.comp
 
@@ -117,7 +116,7 @@ class ComparisonBranchesBuilder(val ctx: ObjectManager<SimpleObject>, comp: Comp
             "Cannot make an else-if branch after an else branch"
         }
 
-        val compBuilder = ComparisonBranchesBuilder(this, elseifComp)
+        val compBuilder = ComparisonBranchesBuilder(this.ctx, elseifComp)
         thenSetter(compBuilder)
 
         val latestComp = this@ComparisonBranchesBuilder.latestCompBranch
