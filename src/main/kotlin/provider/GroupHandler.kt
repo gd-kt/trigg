@@ -43,8 +43,9 @@ interface GroupHandler {
     fun acquireLabel(): UInt
 
     /**
-     * Acquires a new register to be used.
-     * Registers are a bit different from labels since they can be released.
+     * Acquires a new register to be used, it's a label.
+     * Registers are a bit different from labels since they can be released and so
+     * can be used for **temporary tasks**.
      *
      * For example, in a loop we need a **temporary** counter, when created
      * we [acquire][acquireRegister] a register and once the loops end, we can [release][releaseRegister] it
@@ -56,7 +57,8 @@ interface GroupHandler {
 
     /**
      * Releases a given [register].
-     * Registers are a bit different from labels since they can be released.
+     * Registers are a bit different from labels since they can be released and so
+     * can be used for **temporary tasks**.
      *
      * For an example, look at [acquireRegister]'s KDoc
      * @throws IllegalArgumentException if the given [register] was never acquired
@@ -64,3 +66,13 @@ interface GroupHandler {
      */
     fun releaseRegister(register: UInt)
 }
+
+/**
+ * Releases this register.
+ * See [GroupHandler.releaseRegister] for more info
+ *
+ * @throws IllegalArgumentException if this register was never acquired
+ * @see GroupHandler.acquireRegister
+ */
+context(ctx: GroupHandler)
+fun UInt.releaseRegister() = ctx.releaseRegister(this)
