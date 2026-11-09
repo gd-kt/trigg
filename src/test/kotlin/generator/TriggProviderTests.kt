@@ -160,4 +160,14 @@ internal class TriggProviderTests {
             }
         }
     }
+
+    @Test
+    fun instanceSingletonTest() {
+        Assertions.assertThrows(IllegalStateException::class.java) { TriggProvider.Instance }
+        trigg {
+            Assertions.assertEquals(this, TriggProvider.Instance)
+        }
+
+        Assertions.assertThrows(IllegalStateException::class.java) { TriggProvider.Instance }
+    }
 }

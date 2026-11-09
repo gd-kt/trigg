@@ -78,13 +78,13 @@ class GroupAdder(
     }
 
     override fun defineFunction(triggFunction: TriggFunctionType): UInt =
-        this.defineFunctionHelper(triggFunction, TriggProvider.getInstance()._triggFunctions)
+        this.defineFunctionHelper(triggFunction, TriggProvider.Instance._triggFunctions)
 
     override fun spawnFunction(triggFunction: TriggFunctionType, canSpawnEarly: Boolean, delay: Float): SpawnTrigger =
-        this.spawnFunctionHelper(triggFunction, canSpawnEarly, delay, TriggProvider.getInstance()._triggFunctions)
+        this.spawnFunctionHelper(triggFunction, canSpawnEarly, delay, TriggProvider.Instance._triggFunctions)
 
     override fun getFunctionID(triggFunction: TriggFunctionType): UInt =
-        this.getFunctionIdHelper(triggFunction, TriggProvider.getInstance()._triggFunctions)
+        this.getFunctionIdHelper(triggFunction, TriggProvider.Instance._triggFunctions)
 
     override fun getNextPos(): Pos = this.context.getNextPos() + GridPos(2.0f, 0f)
 
@@ -217,7 +217,7 @@ fun onlyGroups(vararg groups: UInt, groupAdder: GroupAdder.() -> Unit): GroupAdd
         callsInPlace(groupAdder, InvocationKind.EXACTLY_ONCE)
     }
 
-    val myGroupAdder = GroupAdder(TriggProvider.getInstance(), ONLY_GROUP_TEMP_GROUP).apply(groupAdder)
+    val myGroupAdder = GroupAdder(TriggProvider.Instance, ONLY_GROUP_TEMP_GROUP).apply(groupAdder)
     myGroupAdder.collectedObjects.forEach {
         // This checks prevents objects coming from
         // spawn branches to get the given groups
