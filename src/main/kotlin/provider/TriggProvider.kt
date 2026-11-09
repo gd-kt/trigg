@@ -119,6 +119,7 @@ class TriggProvider internal constructor(): ObjectManager<SimpleObject>, RawStri
 
     /**
      * Creates the initializer for this [TriggProvider]
+     * @throws IllegalStateException if the init clause has been called twice
      */
     fun init(initGetter: MutableTriggInit.() -> Unit) {
         this.throwIfFinished()
