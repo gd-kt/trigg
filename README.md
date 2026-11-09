@@ -155,4 +155,4 @@ WSLiveEditor().use {
 ```
 
 > [!TIP]
-> Learn more about the integration on [gd.kt's docs](https://gd-kt.github.io/docs/gdkt/editor-api/wsliveeditor.html) !
+> Learn more about its integration on [gd.kt's docs](https://gd-kt.github.io/docs/gdkt/editor-api/wsliveeditor.html) !
