@@ -7,6 +7,7 @@ import editor.objects.data.Position
 import editor.objects.triggers.counters.*
 import provider.GroupHandler
 import provider.ObjectManager
+import utils.toInt
 import java.util.Objects
 import kotlin.math.abs
 import kotlin.math.ceil
@@ -680,6 +681,18 @@ fun const(value: UInt) =
  */
 fun constFloat(value: Float) =
     FloatGDValue(value)
+
+/**
+ * Creates a [IntGDValue] from a constant **boolean** value.
+ * It is stored as either a `0` or a `1` depending on the
+ * given [value]
+ *
+ * @param value the value to store
+ * @return the created [IntGDValue] from the given [value]
+ * @see const
+ */
+fun const(value: Boolean) =
+    IntGDValue(value.toInt())
 
 
 fun <Val : GDValue> negate(gdValue: Val): Val =
