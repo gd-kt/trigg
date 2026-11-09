@@ -84,6 +84,8 @@ internal class TriggFunctionTests {
     @Test
     fun functionDefineTest() {
         val ctx = TriggProvider()
+        TriggProvider.INSTANCE = ctx
+
         ctx.apply {
             defineFunction(::validTriggFunction)
         }

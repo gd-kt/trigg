@@ -72,6 +72,7 @@ private class PersistencyTests {
     @DisplayName("With ON_TRIGGER flag")
     fun onTriggerTest() {
         val ctx = TriggProvider()
+        TriggProvider.INSTANCE = ctx
 
         val value = item(8u)
         val persistentValue = ctx.persistent(PersistentType.ON_TRIGGER) { value }
@@ -90,7 +91,9 @@ private class PersistencyTests {
         Assertions.assertEquals(value.itemID, persistentTrigger.itemID.value)
 
 
+        TriggProvider.INSTANCE = null
         val ctx2 = OldEntrypointTriggProvider()
+        TriggProvider.INSTANCE = ctx2
 
         ctx2.entrypoint(execute = false) {
             spawn {

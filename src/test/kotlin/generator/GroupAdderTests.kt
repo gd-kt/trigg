@@ -100,7 +100,10 @@ private class GroupAdderTests {
     @Test
     @DisplayName("Spawn(group) test")
     fun spawnGroupTest() {
-        val objAdder = GroupAdder(TriggProvider(), 5u)
+        val ctx = TriggProvider()
+        TriggProvider.INSTANCE = ctx
+
+        val objAdder = GroupAdder(ctx, 5u)
         val spawnTrigger = objAdder.spawn(6.group)
 
         Assertions.assertEquals(1, objAdder.collectedObjects.size)
@@ -227,6 +230,8 @@ private class GroupAdderTests {
 
 
         val ctx2 = TriggProvider()
+        TriggProvider.INSTANCE = ctx
+
         val groupAdder2 = ctx2.group(5u) {
             add { SimpleObject(5u, Pos.ZERO) }
             group(6u) {
@@ -343,6 +348,8 @@ private class GroupAdderTests {
 
 
         val ctx2 = TriggProvider()
+        TriggProvider.INSTANCE = ctx
+
         val groupAdder2 = ctx2.groups(5u, 9u)  {
             add { SimpleObject(5u, Pos.ZERO) }
             group(6u) {

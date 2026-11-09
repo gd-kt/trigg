@@ -88,7 +88,7 @@ class TriggProvider internal constructor(): ObjectManager<SimpleObject>, RawStri
     val triggFunctions: Map<TriggFunctionType, TriggFunctionState>
         get() = this._triggFunctions
 
-    private var currentPos: Pos = Pos.gridCentered(5f, 3f)
+    private var currentPos: Pos = Pos.ZERO
 
     private var _init: TriggInit? = null
     val init: TriggInit

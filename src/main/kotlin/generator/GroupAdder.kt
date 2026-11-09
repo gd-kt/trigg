@@ -86,7 +86,14 @@ class GroupAdder(
     override fun getFunctionID(triggFunction: TriggFunctionType): UInt =
         this.getFunctionIdHelper(triggFunction, TriggProvider.Instance._triggFunctions)
 
-    override fun getNextPos(): Pos = this.context.getNextPos() + GridPos(2.0f, 0f)
+    override fun getNextPos(): Pos {
+        val offset = if (TriggProvider.Instance.init.beautifyTriggers)
+            GridPos(2.0f, 0f)
+        else
+            GridPos.ZERO
+
+        return this.context.getNextPos() + offset
+    }
 
     private fun addSpawnTrigger(targetID: UInt, delay: Float): SpawnTrigger =
         this.add {
