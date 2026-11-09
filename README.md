@@ -24,6 +24,10 @@ repositories {
 
 dependencies {
     implementation("com.github.gd-kt:trigg:<version tag>")
+    // gd.kt is technichally optional but you won't be able
+    // to do much without it.
+    // It provides the api to create objects
+    implementation("com.github.gd-kt:gd.kt:<gd.kt version tag>")
 }
 ```
 
