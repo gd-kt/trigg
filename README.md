@@ -12,7 +12,7 @@ It is dependent on [gd.kt](https://github.com/gd-kt/gd.kt).
 It allows, like [spwn](https://github.com/Spu7Nix/SPWN-language), to make complex trigger stuff, but in a way where they mostly are abstracted away.
 
 > [!WARNING]
-> `trigg`'s documentation is not yet finished !
+> `trigg`'s documentation is not finished yet !
 
 ## Installation
 
