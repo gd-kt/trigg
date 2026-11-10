@@ -10,6 +10,7 @@ Trigg is a [spwn](https://github.com/Spu7Nix/SPWN-language) inspired kotlin DSL.
 It is dependent on [gd.kt](https://github.com/gd-kt/gd.kt).
 
 It allows, like [spwn](https://github.com/Spu7Nix/SPWN-language), to make complex trigger stuff, but in a way where they mostly are abstracted away.
+However, unlike [spwn](https://github.com/Spu7Nix/SPWN-language) all objects are properly typed and type safe.
 
 > [!WARNING]
 > `trigg`'s documentation is not finished yet !
