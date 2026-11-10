@@ -180,6 +180,7 @@ open class GDValue(
      * @see lessThan
      * @see lessThanEqual
      */
+    // TODO: Rename to equalTo
     infix fun equalsTo(other: GDValue): ComparisonCreator =
         this.createCompareTrigger(other, ItemCompareComparisonType.EQUAL)
 
