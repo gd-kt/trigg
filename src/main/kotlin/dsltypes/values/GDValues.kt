@@ -181,6 +181,7 @@ open class GDValue(
      * @see lessThan
      * @see lessThanEqual
      */
+    // TODO: Rename to equalTo
     infix fun equalsTo(other: GDValue): ComparisonCreator =
         this.createCompareTrigger(other, ItemCompareComparisonType.EQUAL)
 
@@ -634,16 +635,6 @@ fun ObjectManager<SimpleObject>.item(itemID: UInt? = null, value: UInt): ItemGDV
  */
 fun timer(timerID: UInt) = TimerGDValue(timerID)
 
-fun ItemCompareComparisonType.opposite(): ItemCompareComparisonType =
-    when (this) {
-        ItemCompareComparisonType.EQUAL -> ItemCompareComparisonType.NOT_EQUAL
-        ItemCompareComparisonType.GREATER_THAN -> ItemCompareComparisonType.LESS_THAN_EQUAL
-        ItemCompareComparisonType.GREATER_THAN_EQUAL -> ItemCompareComparisonType.LESS_THAN
-        ItemCompareComparisonType.LESS_THAN -> ItemCompareComparisonType.GREATER_THAN_EQUAL
-        ItemCompareComparisonType.LESS_THAN_EQUAL -> ItemCompareComparisonType.GREATER_THAN
-        ItemCompareComparisonType.NOT_EQUAL -> ItemCompareComparisonType.EQUAL
-    }
-
 /**
  * Creates a [Points Value][PointsGDValue].
  * It stores the current points of a run. This is only used in **Platformer Mode**.
@@ -738,4 +729,14 @@ fun <Val : GDValue> floor(gdValue: Val): Val =
 fun <Val : GDValue> ceil(gdValue: Val): Val =
     gdValue.apply {
         roundingType = ItemTriggerRoundingType.CEIL
+    }
+
+fun ItemCompareComparisonType.opposite(): ItemCompareComparisonType =
+    when (this) {
+        ItemCompareComparisonType.EQUAL -> ItemCompareComparisonType.NOT_EQUAL
+        ItemCompareComparisonType.GREATER_THAN -> ItemCompareComparisonType.LESS_THAN_EQUAL
+        ItemCompareComparisonType.GREATER_THAN_EQUAL -> ItemCompareComparisonType.LESS_THAN
+        ItemCompareComparisonType.LESS_THAN -> ItemCompareComparisonType.GREATER_THAN_EQUAL
+        ItemCompareComparisonType.LESS_THAN_EQUAL -> ItemCompareComparisonType.GREATER_THAN
+        ItemCompareComparisonType.NOT_EQUAL -> ItemCompareComparisonType.EQUAL
     }
