@@ -255,6 +255,15 @@ open class GDValue(
 }
 
 abstract class NumberGDValue<N : Number>(val value: N, type: ItemTriggerTermType = ItemTriggerTermType.UNSET) : GDValue(type = type, isValueGlobal = true) {
+    /**
+     * The expected value that will be evaluated by Geometry Dash
+     */
+    val expectedValue: N
+        get() {
+            val doubleValue = this.value.toDouble()
+            return this.numberToN(this.applyModifiers(doubleValue))
+        }
+
     protected abstract fun numberToN(numInput: Number): N
 
     /**
@@ -265,13 +274,13 @@ abstract class NumberGDValue<N : Number>(val value: N, type: ItemTriggerTermType
     abstract fun with(newValue: N): NumberGDValue<N>
 
     /**
-     * The expected value that will be evaluated by Geometry Dash
+     * Turns this [GDValue][NumberGDValue] into an [ItemGDValue]
+     * @param context the context in which to set the value
+     * @param itemID the itemID to set the returned [ItemGDValue] to
+     * @return the created [ItemGDValue]. Its target itemID is the [given one][itemID]
      */
-    val expectedValue: N
-        get() {
-            val doubleValue = this.value.toDouble()
-            return this.numberToN(this.applyModifiers(doubleValue))
-        }
+    fun toItemCounter(context: ObjectManager<SimpleObject>, itemID: UInt? = null): ItemGDValue =
+        context.item(itemID, this.value.toFloat())
 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
@@ -289,6 +298,16 @@ abstract class NumberGDValue<N : Number>(val value: N, type: ItemTriggerTermType
         return result
     }
 }
+
+/**
+ * Turns this [GDValue][NumberGDValue] into an [ItemGDValue]
+ * @param context the context in which to set the value
+ * @param itemID the itemID to set the returned [ItemGDValue] to
+ * @return the created [ItemGDValue]. Its target itemID is the [given one][itemID]
+ */
+context(context: ObjectManager<SimpleObject>)
+fun NumberGDValue<*>.toItemCounter(itemID: UInt? = null): ItemGDValue =
+    this.toItemCounter(context, itemID)
 
 abstract class WithIdGDValue(val itemID: UInt? = null, type: ItemTriggerTermType) : GDValue(type = type), ValueWithCounter {
     private var acquiredItemID: UInt? = null
